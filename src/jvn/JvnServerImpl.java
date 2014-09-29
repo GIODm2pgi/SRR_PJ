@@ -94,6 +94,11 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 **/
 	public  void jvnRegisterObject(String jon, JvnObject jo) throws jvn.JvnException {
 		// to be completed 
+		try {
+			this.getCoordinator().jvnRegisterObject(jon, jo, this);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**

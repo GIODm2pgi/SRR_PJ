@@ -16,7 +16,9 @@ import java.io.*;
  */
 
 public interface JvnRemoteCoord extends Remote {
-
+	
+	public void debugPrintMap() throws java.rmi.RemoteException,jvn.JvnException;
+	
 	/**
 	 *  Allocate a NEW JVN object id (usually allocated to a 
 	 *  newly created JVN object)

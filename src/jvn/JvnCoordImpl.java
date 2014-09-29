@@ -12,14 +12,26 @@ import java.io.Serializable;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 
 public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord {
 	private static final long serialVersionUID = -353610607093461332L;
 
 	private HashMap<Integer, JvnObject> storeJvnObject = null ;
+	private HashMap<String, Integer> storeNameObject = null ;
+	private HashMap<Integer, JvnRemoteServer> storeLockWriteObject = null ;
+	private HashMap<Integer, List<JvnRemoteServer>> storeLockReadObject = null ;
 	private int nextStoreJvnObjectID = 0 ;
+	
+	public void debugPrintMap(){
+		System.out.println("storeJvnObject : " + storeJvnObject);
+		System.out.println("storeNameObject : " + storeNameObject);
+		System.out.println("storeLockWriteObject : " + storeLockWriteObject);
+		System.out.println("storeLockReadObject : " + storeLockReadObject);
+	}
 	
 	public static void main(String[] args) {
 		System.setProperty("java.security.policy","file:./java.policy");
@@ -43,6 +55,9 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		// to be completed
 		this.storeJvnObject = new HashMap<Integer, JvnObject>() ;
 		this.nextStoreJvnObjectID = 0 ;
+		storeNameObject = new HashMap<String, Integer>() ;
+		this.storeLockWriteObject = new HashMap<Integer, JvnRemoteServer>() ;
+		this.storeLockReadObject = new HashMap<Integer, List<JvnRemoteServer>>() ;
 	}
 
 	/**
@@ -67,6 +82,12 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 **/
 	public void jvnRegisterObject(String jon, JvnObject jo, JvnRemoteServer js) throws java.rmi.RemoteException,jvn.JvnException{
 		// to be completed 
+		Integer idJvnO = jo.jvnGetObjectId() ;
+		this.storeJvnObject.put(idJvnO, jo);
+		this.storeNameObject.put(jon, idJvnO);
+		this.storeLockWriteObject.put(idJvnO, js);
+		this.storeLockReadObject.put(idJvnO, new ArrayList<JvnRemoteServer>());
+
 	}
 
 	/**
@@ -77,7 +98,8 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 **/
 	public JvnObject jvnLookupObject(String jon, JvnRemoteServer js) throws java.rmi.RemoteException,jvn.JvnException{
 		// to be completed 
-		return null;
+		JvnObject toReturn = this.storeJvnObject.get(jon) ;
+		return toReturn ;
 	}
 
 	/**
