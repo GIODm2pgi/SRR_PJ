@@ -12,6 +12,8 @@ package jvn;
  */
 
 public class JvnException extends Exception {
+	private static final long serialVersionUID = 5040142103568889147L;
+	
 	String message;
   
 	public JvnException() {
