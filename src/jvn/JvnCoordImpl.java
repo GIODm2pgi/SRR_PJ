@@ -8,12 +8,28 @@
 
 package jvn;
 
-import java.rmi.server.UnicastRemoteObject;
 import java.io.Serializable;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 
 
 public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord {
 	private static final long serialVersionUID = -353610607093461332L;
+
+	public static void main(String[] args) {
+		System.setProperty("java.security.policy","file:./java.policy");
+		if (System.getSecurityManager() == null) { System.setSecurityManager(new SecurityManager());}
+		JvnCoordImpl jvncoordimpl;
+		try {
+			jvncoordimpl = new JvnCoordImpl();
+			Registry registry=LocateRegistry.createRegistry(1099);
+			registry.bind("COORD", jvncoordimpl);
+			System.out.println ("Coordinator ready");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	/**
 	 * Default constructor
