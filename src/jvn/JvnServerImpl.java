@@ -8,8 +8,10 @@
 
 package jvn;
 
+import java.io.Serializable;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.io.*;
 
 
 
@@ -18,6 +20,11 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 
 	// A JVN server is managed as a singleton 
 	private static JvnServerImpl js = null;
+	
+	private JvnRemoteCoord coordinator;
+	public JvnRemoteCoord getCoordinator() {
+		return coordinator;
+	}
 
 	/**
 	 * Default constructor
@@ -25,6 +32,14 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 **/
 	private JvnServerImpl() throws Exception {
 		super();
+		
+		System.setProperty("java.security.policy","file:./java.policy");
+		if (System.getSecurityManager() == null) { System.setSecurityManager(new SecurityManager()); }
+		String host = "localhost";
+		Registry registry = LocateRegistry.getRegistry(host);
+		coordinator = (JvnRemoteCoord) registry.lookup("COORDINATOR");
+		System.out.println ("Coordinator ready on server");
+		
 		// to be completed
 	}
 
@@ -38,6 +53,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 			try {
 				js = new JvnServerImpl();
 			} catch (Exception e) {
+				e.printStackTrace();
 				return null;
 			}
 		}

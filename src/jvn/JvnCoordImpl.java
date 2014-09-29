@@ -24,7 +24,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		try {
 			jvncoordimpl = new JvnCoordImpl();
 			Registry registry=LocateRegistry.createRegistry(1099);
-			registry.bind("COORD", jvncoordimpl);
+			registry.bind("COORDINATOR", jvncoordimpl);
 			System.out.println ("Coordinator ready");
 		} catch (Exception e) {
 			e.printStackTrace();
