@@ -11,7 +11,7 @@ package irc;
 public class Sentence implements java.io.Serializable {
 	private static final long serialVersionUID = -5744335023076980519L;
 	
-	String 		data;
+	String data;
   
 	public Sentence() {
 		data = new String("");
