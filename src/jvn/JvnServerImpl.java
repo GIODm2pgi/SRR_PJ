@@ -48,8 +48,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 * The JVN service is not used anymore
 	 * @throws JvnException
 	 **/
-	public  void jvnTerminate()
-			throws jvn.JvnException {
+	public  void jvnTerminate() throws jvn.JvnException {
 		// to be completed 
 	} 
 
@@ -58,8 +57,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 * @param o : the JVN object state
 	 * @throws JvnException
 	 **/
-	public  JvnObject jvnCreateObject(Serializable o)
-			throws jvn.JvnException { 
+	public  JvnObject jvnCreateObject(Serializable o) throws jvn.JvnException { 
 		// to be completed 
 		return null; 
 	}
@@ -70,8 +68,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 * @param jo : the JVN object 
 	 * @throws JvnException
 	 **/
-	public  void jvnRegisterObject(String jon, JvnObject jo)
-			throws jvn.JvnException {
+	public  void jvnRegisterObject(String jon, JvnObject jo) throws jvn.JvnException {
 		// to be completed 
 	}
 
@@ -81,8 +78,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 * @return the JVN object 
 	 * @throws JvnException
 	 **/
-	public  JvnObject jvnLookupObject(String jon)
-			throws jvn.JvnException {
+	public  JvnObject jvnLookupObject(String jon) throws jvn.JvnException {
 		// to be completed 
 		return null;
 	}	
@@ -93,8 +89,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 * @return the current JVN object state
 	 * @throws  JvnException
 	 **/
-	public Serializable jvnLockRead(int joi)
-			throws JvnException {
+	public Serializable jvnLockRead(int joi) throws JvnException {
 		// to be completed 
 		return null;
 
@@ -105,8 +100,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 * @return the current JVN object state
 	 * @throws  JvnException
 	 **/
-	public Serializable jvnLockWrite(int joi)
-			throws JvnException {
+	public Serializable jvnLockWrite(int joi) throws JvnException {
 		// to be completed 
 		return null;
 	}	
@@ -119,8 +113,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 * @return void
 	 * @throws java.rmi.RemoteException,JvnException
 	 **/
-	public void jvnInvalidateReader(int joi)
-			throws java.rmi.RemoteException,jvn.JvnException {
+	public void jvnInvalidateReader(int joi) throws java.rmi.RemoteException,jvn.JvnException {
 		// to be completed 
 	};
 
@@ -130,8 +123,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 * @return the current JVN object state
 	 * @throws java.rmi.RemoteException,JvnException
 	 **/
-	public Serializable jvnInvalidateWriter(int joi)
-			throws java.rmi.RemoteException,jvn.JvnException { 
+	public Serializable jvnInvalidateWriter(int joi) throws java.rmi.RemoteException,jvn.JvnException { 
 		// to be completed 
 		return null;
 	};
@@ -142,8 +134,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 * @return the current JVN object state
 	 * @throws java.rmi.RemoteException,JvnException
 	 **/
-	public Serializable jvnInvalidateWriterForReader(int joi)
-			throws java.rmi.RemoteException,jvn.JvnException { 
+	public Serializable jvnInvalidateWriterForReader(int joi) throws java.rmi.RemoteException,jvn.JvnException { 
 		// to be completed 
 		return null;
 	};

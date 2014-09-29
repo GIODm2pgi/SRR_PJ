@@ -22,8 +22,7 @@ public interface JvnLocalServer {
 	 * @return the JVN object 
 	 * @throws JvnException
 	 **/
-	public  JvnObject jvnCreateObject(Serializable jos)
-			throws jvn.JvnException ; 
+	public  JvnObject jvnCreateObject(Serializable jos) throws jvn.JvnException ; 
 
 	/**
 	 * Associate a symbolic name with a JVN object
@@ -31,8 +30,7 @@ public interface JvnLocalServer {
 	 * @param jo : the JVN object 
 	 * @throws JvnException
 	 **/
-	public  void jvnRegisterObject(String jon, JvnObject jo)
-			throws jvn.JvnException; 
+	public  void jvnRegisterObject(String jon, JvnObject jo) throws jvn.JvnException; 
 
 	/**
 	 * Get the reference of a JVN object associated to a symbolic name
@@ -40,8 +38,7 @@ public interface JvnLocalServer {
 	 * @return the JVN object 
 	 * @throws JvnException
 	 **/
-	public  JvnObject jvnLookupObject(String jon)
-			throws jvn.JvnException ; 
+	public  JvnObject jvnLookupObject(String jon) throws jvn.JvnException ; 
 
 
 	/**
@@ -50,8 +47,7 @@ public interface JvnLocalServer {
 	 * @return the current JVN object state
 	 * @throws  JvnException
 	 **/
-	public Serializable jvnLockRead(int joi)
-			throws JvnException;
+	public Serializable jvnLockRead(int joi) throws JvnException;
 
 	/**
 	 * Get a Write lock on a JVN object 
@@ -59,16 +55,14 @@ public interface JvnLocalServer {
 	 * @return the current JVN object state
 	 * @throws  JvnException
 	 **/
-	public Serializable jvnLockWrite(int joi)
-			throws JvnException;
+	public Serializable jvnLockWrite(int joi) throws JvnException;
 
 
 	/**
 	 * The JVN service is not used anymore by the application
 	 * @throws JvnException
 	 **/
-	public  void jvnTerminate()
-			throws jvn.JvnException; 
+	public  void jvnTerminate() throws jvn.JvnException; 
 }
 
 
