@@ -12,11 +12,15 @@ import java.io.Serializable;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.HashMap;
 
 
 public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord {
 	private static final long serialVersionUID = -353610607093461332L;
 
+	private HashMap<Integer, JvnObject> storeJvnObject = null ;
+	private int nextStoreJvnObjectID = 0 ;
+	
 	public static void main(String[] args) {
 		System.setProperty("java.security.policy","file:./java.policy");
 		if (System.getSecurityManager() == null) { System.setSecurityManager(new SecurityManager());}
@@ -37,6 +41,8 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 **/
 	private JvnCoordImpl() throws Exception {
 		// to be completed
+		this.storeJvnObject = new HashMap<Integer, JvnObject>() ;
+		this.nextStoreJvnObjectID = 0 ;
 	}
 
 	/**
@@ -44,9 +50,11 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 *  newly created JVN object)
 	 * @throws java.rmi.RemoteException,JvnException
 	 **/
-	public int jvnGetObjectId()	throws java.rmi.RemoteException,jvn.JvnException {
+	public synchronized int jvnGetObjectId() throws java.rmi.RemoteException,jvn.JvnException {
 		// to be completed 
-		return 0;
+		int toReturn = this.nextStoreJvnObjectID ;
+		this.nextStoreJvnObjectID++ ;
+		return toReturn ;
 	}
 
 	/**

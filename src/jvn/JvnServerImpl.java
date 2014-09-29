@@ -9,6 +9,7 @@
 package jvn;
 
 import java.io.Serializable;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -75,7 +76,14 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 **/
 	public  JvnObject jvnCreateObject(Serializable o) throws jvn.JvnException { 
 		// to be completed 
-		return null; 
+		int jvnObjectId = 0;
+		try {
+			jvnObjectId = this.getCoordinator().jvnGetObjectId();
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+		JvnObject toReturn = new JvnObjectImpl(jvnObjectId, o);
+		return toReturn ; 
 	}
 
 	/**
