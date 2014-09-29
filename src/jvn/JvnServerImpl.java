@@ -13,6 +13,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.HashMap;
 
 
 
@@ -22,6 +23,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	// A JVN server is managed as a singleton 
 	private static JvnServerImpl js = null;
 	
+	private HashMap<Integer, JvnObject> cacheJvnObject = null ;
 	private JvnRemoteCoord coordinator;
 	public JvnRemoteCoord getCoordinator() {
 		return coordinator;
@@ -40,6 +42,8 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 		Registry registry = LocateRegistry.getRegistry(host);
 		coordinator = (JvnRemoteCoord) registry.lookup("COORDINATOR");
 		System.out.println ("Coordinator ready on server");
+		
+		this.cacheJvnObject = new HashMap<Integer, JvnObject>() ;
 		
 		// to be completed
 	}
@@ -67,6 +71,11 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 **/
 	public  void jvnTerminate() throws jvn.JvnException {
 		// to be completed 
+		try {
+			this.getCoordinator().jvnTerminate(this);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
 	} 
 
 	/**
@@ -83,6 +92,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 			e.printStackTrace();
 		}
 		JvnObject toReturn = new JvnObjectImpl(jvnObjectId, o);
+		this.cacheJvnObject.put(jvnObjectId, toReturn);
 		return toReturn ; 
 	}
 
@@ -109,6 +119,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 **/
 	public  JvnObject jvnLookupObject(String jon) throws jvn.JvnException {
 		// to be completed 
+		// TODO
 		return null;
 	}	
 
@@ -120,9 +131,15 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 **/
 	public Serializable jvnLockRead(int joi) throws JvnException {
 		// to be completed 
-		return null;
-
+		Serializable toReturn = null;
+		try {
+			toReturn = this.getCoordinator().jvnLockRead(joi, this);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+		return toReturn;
 	}	
+	
 	/**
 	 * Get a Write lock on a JVN object 
 	 * @param joi : the JVN object identification
@@ -131,7 +148,13 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 **/
 	public Serializable jvnLockWrite(int joi) throws JvnException {
 		// to be completed 
-		return null;
+		Serializable toReturn = null;
+		try {
+			toReturn = this.getCoordinator().jvnLockWrite(joi, this);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+		return toReturn;
 	}	
 
 
@@ -143,7 +166,8 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 * @throws java.rmi.RemoteException,JvnException
 	 **/
 	public void jvnInvalidateReader(int joi) throws java.rmi.RemoteException,jvn.JvnException {
-		// to be completed 
+		// to be completed
+		this.cacheJvnObject.get(joi).jvnInvalidateReader();
 	};
 
 	/**
@@ -154,7 +178,8 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 **/
 	public Serializable jvnInvalidateWriter(int joi) throws java.rmi.RemoteException,jvn.JvnException { 
 		// to be completed 
-		return null;
+		Serializable toReturn = this.cacheJvnObject.get(joi).jvnInvalidateWriter();
+		return toReturn;
 	};
 
 	/**
@@ -165,7 +190,8 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 **/
 	public Serializable jvnInvalidateWriterForReader(int joi) throws java.rmi.RemoteException,jvn.JvnException { 
 		// to be completed 
-		return null;
+		Serializable toReturn = this.cacheJvnObject.get(joi).jvnInvalidateWriterForReader();
+		return toReturn;
 	};
 
 }
