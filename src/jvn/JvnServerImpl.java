@@ -197,7 +197,13 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 		// to be completed 
 		Serializable toReturn = this.cacheJvnObject.get(joi).jvnInvalidateWriterForReader();
 		return toReturn;
-	};
+	}
+
+	public void jvnUpdate(JvnObject jo) throws RemoteException, JvnException {
+		// TODO Auto-generated method stub
+		this.getCoordinator().jvnUpdate(jo);
+	}
+
 
 }
 

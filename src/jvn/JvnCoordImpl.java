@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-
 public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord {
 	private static final long serialVersionUID = -353610607093461332L;
 
@@ -112,7 +111,8 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 **/
 	public Serializable jvnLockRead(int joi, JvnRemoteServer js) throws java.rmi.RemoteException, JvnException{
 		// to be completed
-		return null;
+		JvnObject toReturn = this.storeJvnObject.get(joi) ;
+		return toReturn.jvnGetObjectState() ;
 	}
 
 	/**
@@ -124,7 +124,8 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 **/
 	public Serializable jvnLockWrite(int joi, JvnRemoteServer js) throws java.rmi.RemoteException, JvnException{
 		// to be completed
-		return null;
+		JvnObject toReturn = this.storeJvnObject.get(joi) ;
+		return toReturn.jvnGetObjectState() ;
 	}
 
 	/**
@@ -135,6 +136,13 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	public void jvnTerminate(JvnRemoteServer js) throws java.rmi.RemoteException, JvnException {
 		// to be completed
 	}
+
+	public void jvnUpdate(JvnObject jo) {
+		try {
+			this.storeJvnObject.put(jo.jvnGetObjectId(), jo) ;
+		} catch (JvnException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }
-
-

@@ -1,6 +1,7 @@
 package jvn;
 
 import java.io.Serializable;
+import java.rmi.RemoteException;
 
 public class JvnObjectImpl implements JvnObject {
 	private static final long serialVersionUID = -3809665057739668303L;
@@ -15,17 +16,22 @@ public class JvnObjectImpl implements JvnObject {
 
 	public void jvnLockRead() throws JvnException {
 		// TODO Auto-generated method stub
-		
+		this.objectJvn = JvnServerImpl.jvnGetServer().jvnLockRead(this.jvnObjectId);
 	}
 
 	public void jvnLockWrite() throws JvnException {
 		// TODO Auto-generated method stub
-		
+		this.objectJvn = JvnServerImpl.jvnGetServer().jvnLockWrite(this.jvnObjectId);
 	}
 
 	public void jvnUnLock() throws JvnException {
 		// TODO Auto-generated method stub
-		
+		try {
+			JvnServerImpl.jvnGetServer().jvnUpdate(this);
+		} catch (RemoteException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public int jvnGetObjectId() throws JvnException {
