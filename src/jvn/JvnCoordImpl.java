@@ -19,6 +19,8 @@ import java.util.List;
 public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord {
 	private static final long serialVersionUID = -353610607093461332L;
 
+	public enum LOCK_STATE { NL , RLC , WLC , RLT , WLT, RLT_WLC }
+	
 	private HashMap<Integer, JvnObject> storeJvnObject = null ;
 	private HashMap<String, Integer> storeNameObject = null ;
 	private HashMap<Integer, JvnRemoteServer> storeLockWriteObject = null ;
