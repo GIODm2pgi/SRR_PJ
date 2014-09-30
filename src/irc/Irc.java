@@ -7,18 +7,26 @@
 
 package irc;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.Button;
+import java.awt.Color;
+import java.awt.GridLayout;
+import java.awt.TextArea;
+import java.awt.TextField;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.Serializable;
 
+import javax.swing.JFrame;
 
-import jvn.*;
-import java.io.*;
+import jvn.JvnException;
+import jvn.JvnObject;
+import jvn.JvnServerImpl;
 
 
 public class Irc {
 	public TextArea		text;
 	public TextField	data;
-	Frame 			frame;
+	JFrame 			frame;
 	JvnObject       sentence;
 
 
@@ -56,7 +64,8 @@ public class Irc {
    **/
 	public Irc(JvnObject jo) {
 		sentence = jo;
-		frame=new Frame();
+		frame=new JFrame();
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE );
 		frame.setLayout(new GridLayout(1,1));
 		text=new TextArea(10,60);
 		text.setEditable(false);
