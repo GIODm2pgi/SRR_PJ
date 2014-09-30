@@ -8,6 +8,8 @@
 
 package jvn;
 
+import irc.Sentence;
+
 import java.io.Serializable;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -98,7 +100,8 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 **/
 	public JvnObject jvnLookupObject(String jon, JvnRemoteServer js) throws java.rmi.RemoteException,jvn.JvnException{
 		// to be completed 
-		JvnObject toReturn = this.storeJvnObject.get(jon) ;
+		Integer joid = this.storeNameObject.get(jon) ;
+		JvnObject toReturn = this.storeJvnObject.get(joid) ;
 		return toReturn ;
 	}
 

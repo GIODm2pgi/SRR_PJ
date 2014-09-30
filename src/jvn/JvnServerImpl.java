@@ -119,8 +119,13 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 **/
 	public  JvnObject jvnLookupObject(String jon) throws jvn.JvnException {
 		// to be completed 
-		// TODO
-		return null;
+		JvnObject toReturn = null ;
+		try {
+			toReturn = this.getCoordinator().jvnLookupObject(jon, this);
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+		return toReturn;
 	}	
 
 	/**
