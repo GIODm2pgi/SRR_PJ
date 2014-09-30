@@ -8,8 +8,6 @@
 
 package jvn;
 
-import irc.Sentence;
-
 import java.io.Serializable;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -57,7 +55,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		// to be completed
 		this.storeJvnObject = new HashMap<Integer, JvnObject>() ;
 		this.nextStoreJvnObjectID = 0 ;
-		storeNameObject = new HashMap<String, Integer>() ;
+		this.storeNameObject = new HashMap<String, Integer>() ;
 		this.storeLockWriteObject = new HashMap<Integer, JvnRemoteServer>() ;
 		this.storeLockReadObject = new HashMap<Integer, List<JvnRemoteServer>>() ;
 	}
