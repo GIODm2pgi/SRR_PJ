@@ -66,6 +66,8 @@ public interface JvnLocalServer {
 	public  void jvnTerminate() throws jvn.JvnException; 
 	
 	public void jvnUpdate(JvnObject jo) throws RemoteException, JvnException;
+	
+	public void jvnMajCache (int id, JvnObject jo);
 }
 
 

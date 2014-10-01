@@ -9,6 +9,8 @@ package jvn;
 
 import java.io.*;
 
+import jvn.JvnCoordImpl.LOCK_STATE;
+
 /**
  * Interface of a JVN object. 
  * The serializable property is required in order to be able to transfer 
@@ -69,4 +71,6 @@ public interface JvnObject extends Serializable {
 	 **/
 	public Serializable jvnInvalidateWriterForReader() throws jvn.JvnException;	
 	
+	public LOCK_STATE getLock_state();
+	public void setLock_state(LOCK_STATE lock_state);
 }

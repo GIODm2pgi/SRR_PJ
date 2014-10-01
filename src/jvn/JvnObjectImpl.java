@@ -1,47 +1,46 @@
 package jvn;
 
 import java.io.Serializable;
-import java.rmi.RemoteException;
 
 import jvn.JvnCoordImpl.LOCK_STATE;
 
 public class JvnObjectImpl implements JvnObject {
 	private static final long serialVersionUID = -3809665057739668303L;
-	
+
 	private int jvnObjectId = -1 ;
 	private Serializable objectJvn = null ;
-	
-	private LOCK_STATE lock_state = LOCK_STATE.NL;
-	
+
+	private LOCK_STATE lock_state = LOCK_STATE.RLT;
+	public LOCK_STATE getLock_state() {
+		return lock_state;
+	}
+	public void setLock_state(LOCK_STATE lock_state) {
+		this.lock_state = lock_state;
+	}
+
 	public JvnObjectImpl(int jvnObjectId, Serializable o){
 		this.jvnObjectId = jvnObjectId ;
 		this.objectJvn = o ;
 	}
 
 	public void jvnLockRead() throws JvnException {
-		if (lock_state == LOCK_STATE.WLC)
-			lock_state=LOCK_STATE.RLT_WLC;
-		else
-			lock_state=LOCK_STATE.RLT;
 		this.objectJvn = JvnServerImpl.jvnGetServer().jvnLockRead(this.jvnObjectId);
 	}
 
 	public void jvnLockWrite() throws JvnException {
-		lock_state=LOCK_STATE.WLT;
 		this.objectJvn = JvnServerImpl.jvnGetServer().jvnLockWrite(this.jvnObjectId);
 	}
 
 	public void jvnUnLock() throws JvnException {
-		if (lock_state == LOCK_STATE.RLT)
-			lock_state=LOCK_STATE.RLC;
+		// signal		
+
+		JvnObject o = JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId);
+		if (o.getLock_state() == LOCK_STATE.RLT)
+			o.setLock_state(LOCK_STATE.RLC);
+		else if (o.getLock_state() == LOCK_STATE.WLT || o.getLock_state() == LOCK_STATE.RLT_WLC)
+			o.setLock_state(LOCK_STATE.WLC);
 		else
-			lock_state=LOCK_STATE.WLC;
-		
-		try {
-			JvnServerImpl.jvnGetServer().jvnUpdate(this);
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
+			o.setLock_state(LOCK_STATE.NL);
 	}
 
 	public int jvnGetObjectId() throws JvnException {
@@ -53,18 +52,28 @@ public class JvnObjectImpl implements JvnObject {
 	}
 
 	public void jvnInvalidateReader() throws JvnException {
-		// TODO Auto-generated method stub
-		
+		if (lock_state == LOCK_STATE.RLT){
+			// wait unlock
+		}
+		JvnObject o = JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId);
+		o.setLock_state(LOCK_STATE.NL);
 	}
 
 	public Serializable jvnInvalidateWriter() throws JvnException {
-		// TODO Auto-generated method stub
-		return null;
+		if (lock_state == LOCK_STATE.WLT){
+			// wait unlock
+		}
+		this.setLock_state(LOCK_STATE.NL);
+		JvnServerImpl.jvnGetServer().getCacheJvnObject().put(this.jvnObjectId, this);
+		return this.objectJvn;
 	}
 
 	public Serializable jvnInvalidateWriterForReader() throws JvnException {
-		// TODO Auto-generated method stub
-		return null;
+		if (lock_state == LOCK_STATE.WLT){
+			// wait unlock
+		}
+		this.setLock_state(LOCK_STATE.RLC);
+		JvnServerImpl.jvnGetServer().getCacheJvnObject().put(this.jvnObjectId, this);
+		return this.objectJvn;
 	}
-
 }
