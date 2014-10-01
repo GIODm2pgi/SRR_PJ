@@ -167,16 +167,4 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	public void jvnTerminate(JvnRemoteServer js) throws java.rmi.RemoteException, JvnException {
 		// to be completed
 	}
-
-	public void jvnUpdate(JvnObject jo) {
-		try {
-			this.storeJvnObject.put(jo.jvnGetObjectId(), jo) ;
-
-			for (JvnRemoteServer s : storeLockReadObject.get(jo.jvnGetObjectId()))
-				((JvnLocalServer) s).jvnMajCache(jo.jvnGetObjectId(), jo);
-
-		} catch (JvnException e) {
-			e.printStackTrace();
-		}
-	}
 }

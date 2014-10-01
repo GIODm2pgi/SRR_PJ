@@ -123,10 +123,6 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 		}
 	}
 
-	public void jvnMajCache (int id, JvnObject jo){
-		cacheJvnObject.put(id, jo);
-	}
-
 	/**
 	 * Provide the reference of a JVN object beeing given its symbolic name
 	 * @param jon : the JVN object name
@@ -239,9 +235,6 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 		return toReturn;
 	}
 
-	public void jvnUpdate(JvnObject jo) throws RemoteException, JvnException {
-		this.getCoordinator().jvnUpdate(jo);
-	}
 }
 
 
