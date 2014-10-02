@@ -136,9 +136,9 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		JvnObject toReturn = null;
 
 		// Check
-		if(joid == null){
-			throw new JvnException("This symbolic name not exist.") ;
-		}
+		//if(joid == null){
+		//	throw new JvnException("This symbolic name not exist.") ;
+		//}
 
 		// Treat a Write Lock.
 		if (this.storeLockWriteObject.containsKey(joid)){
