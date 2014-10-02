@@ -71,13 +71,30 @@ public interface JvnObject extends Serializable {
 	 * @throws JvnException
 	 **/
 	public Serializable jvnInvalidateWriterForReader() throws jvn.JvnException;	
-	
+
+	/**
+	 * Get the lock state.
+	 * @return the current JVN object lock state. 
+	 */
 	public JvnLOCK_STATE getLock_state();
-	
+
+	/**
+	 * Set the current JVN object lock state.
+	 * @param lock_state : the new JVN object lock state.
+	 */
 	public void setLock_state(JvnLOCK_STATE lock_state);
-	
+
+	/**
+	 * Get the real lock of the current JVN object.
+	 * @return the real lock of the current JVN object.
+	 */
 	public Lock getlock();
-	
+
+	/**
+	 * Get the condition of the real lock 
+	 * of the current JVN object.
+	 * @return the condition of the real lock.
+	 */
 	public Condition getlockCondition();
-	
+
 }

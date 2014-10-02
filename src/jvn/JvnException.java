@@ -37,7 +37,7 @@ public class JvnException extends Exception {
 	}	
 
 	/**
-	 * Gets the message of the exception.
+	 * Get the message of the exception.
 	 */
 	public String getMessage(){
 		return message;
