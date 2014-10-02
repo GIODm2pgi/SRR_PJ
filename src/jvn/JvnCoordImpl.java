@@ -53,7 +53,6 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 * @throws JvnException
 	 **/
 	private JvnCoordImpl() throws Exception {
-		// to be completed
 		this.storeJvnObject = new HashMap<Integer, JvnObject>() ;
 		this.nextStoreJvnObjectID = 0 ;
 		this.storeNameObject = new HashMap<String, Integer>() ;
@@ -67,7 +66,6 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 * @throws java.rmi.RemoteException,JvnException
 	 **/
 	public synchronized int jvnGetObjectId() throws java.rmi.RemoteException,jvn.JvnException {
-		// to be completed 
 		int toReturn = this.nextStoreJvnObjectID ;
 		this.nextStoreJvnObjectID++ ;
 		return toReturn ;

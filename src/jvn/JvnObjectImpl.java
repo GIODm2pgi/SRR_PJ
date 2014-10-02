@@ -113,9 +113,11 @@ public class JvnObjectImpl implements JvnObject {
 		}
 		return this.objectJvn;
 	}
+	
 	public Lock getlock() {
 		return this.lock;
 	}
+	
 	public Condition getlockCondition() {
 		return this.lockCondition;
 	}

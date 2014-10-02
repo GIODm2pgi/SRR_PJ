@@ -21,9 +21,6 @@ import jvn.JvnCoordImpl.LOCK_STATE;
 
 public interface JvnObject extends Serializable {
 
-	public Lock getlock();
-	public Condition getlockCondition();
-
 	/**
 	 * Get a Read lock on the object 
 	 * @throws JvnException
@@ -79,4 +76,9 @@ public interface JvnObject extends Serializable {
 	public LOCK_STATE getLock_state();
 	
 	public void setLock_state(LOCK_STATE lock_state);
+	
+	public Lock getlock();
+	
+	public Condition getlockCondition();
+	
 }

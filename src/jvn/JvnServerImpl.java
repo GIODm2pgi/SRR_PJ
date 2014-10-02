@@ -50,8 +50,6 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 		System.out.println ("Coordinator ready on server");
 
 		this.cacheJvnObject = new HashMap<Integer, JvnObject>() ;
-
-		// to be completed
 	}
 
 	/**
@@ -76,7 +74,6 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 * @throws JvnException
 	 **/
 	public  void jvnTerminate() throws jvn.JvnException {
-		// to be completed 
 		try {
 			this.getCoordinator().jvnTerminate(this);
 		} catch (RemoteException e) {
@@ -112,7 +109,6 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 * @throws JvnException
 	 **/
 	public void jvnRegisterObject(String jon, JvnObject jo) throws jvn.JvnException {
-		// to be completed 
 		try {
 			this.getCoordinator().jvnRegisterObject(jon, jo, this);
 
