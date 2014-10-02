@@ -15,7 +15,6 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 
-import jvn.JvnCoordImpl.LOCK_STATE;
 
 
 
@@ -151,18 +150,18 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 		Serializable toReturn = null;
 		JvnObject o = cacheJvnObject.get(joi);	
 		try {
-			if (o.getLock_state() == LOCK_STATE.RLC){
-				o.setLock_state(LOCK_STATE.RLT);
+			if (o.getLock_state() == JvnLOCK_STATE.RLC){
+				o.setLock_state(JvnLOCK_STATE.RLT);
 				toReturn = cacheJvnObject.get(joi).jvnGetObjectState();
 			}
-			else if (o.getLock_state() == LOCK_STATE.WLC){
-				o.setLock_state(LOCK_STATE.RLT_WLC);
+			else if (o.getLock_state() == JvnLOCK_STATE.WLC){
+				o.setLock_state(JvnLOCK_STATE.RLT_WLC);
 				toReturn = cacheJvnObject.get(joi).jvnGetObjectState();
 			}
-			else if (o.getLock_state() == LOCK_STATE.NL){
+			else if (o.getLock_state() == JvnLOCK_STATE.NL){
 				toReturn = this.getCoordinator().jvnLockRead(joi, this);
 				JvnObject updated = new JvnObjectImpl(joi, toReturn);
-				updated.setLock_state(LOCK_STATE.RLT);
+				updated.setLock_state(JvnLOCK_STATE.RLT);
 				cacheJvnObject.put(joi, updated);
 				toReturn = cacheJvnObject.get(joi).jvnGetObjectState();
 			}
@@ -182,14 +181,14 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 		Serializable toReturn = null;
 		JvnObject o = cacheJvnObject.get(joi);	
 		try {		
-			if (o.getLock_state() == LOCK_STATE.WLC || o.getLock_state() == LOCK_STATE.RLT_WLC){
-				o.setLock_state(LOCK_STATE.WLT);
+			if (o.getLock_state() == JvnLOCK_STATE.WLC || o.getLock_state() == JvnLOCK_STATE.RLT_WLC){
+				o.setLock_state(JvnLOCK_STATE.WLT);
 				toReturn = cacheJvnObject.get(joi).jvnGetObjectState();
 			}
 			else{	
 				toReturn = this.getCoordinator().jvnLockWrite(joi, this);
 				JvnObject updated = new JvnObjectImpl(joi, toReturn);
-				updated.setLock_state(LOCK_STATE.WLT);
+				updated.setLock_state(JvnLOCK_STATE.WLT);
 				cacheJvnObject.put(joi, updated);
 				toReturn = cacheJvnObject.get(joi).jvnGetObjectState();
 			}

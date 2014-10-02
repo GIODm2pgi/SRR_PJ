@@ -11,7 +11,6 @@ import java.io.*;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 
-import jvn.JvnCoordImpl.LOCK_STATE;
 
 /**
  * Interface of a JVN object. 
@@ -73,9 +72,9 @@ public interface JvnObject extends Serializable {
 	 **/
 	public Serializable jvnInvalidateWriterForReader() throws jvn.JvnException;	
 	
-	public LOCK_STATE getLock_state();
+	public JvnLOCK_STATE getLock_state();
 	
-	public void setLock_state(LOCK_STATE lock_state);
+	public void setLock_state(JvnLOCK_STATE lock_state);
 	
 	public Lock getlock();
 	

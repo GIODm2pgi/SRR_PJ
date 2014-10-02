@@ -15,11 +15,12 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord {
 	private static final long serialVersionUID = -353610607093461332L;
 
-	public enum LOCK_STATE { NL , RLC , WLC , RLT , WLT, RLT_WLC }
+	//public enum LOCK_STATE { NL , RLC , WLC , RLT , WLT, RLT_WLC }
 
 	private HashMap<Integer, JvnObject> storeJvnObject = null ;
 	private HashMap<String, Integer> storeNameObject = null ;
@@ -27,12 +28,6 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	private HashMap<Integer, List<JvnRemoteServer>> storeLockReadObject = null ;
 	private int nextStoreJvnObjectID = 0 ;
 
-	public void debugPrintMap(){
-		System.out.println("storeJvnObject : " + storeJvnObject);
-		System.out.println("storeNameObject : " + storeNameObject);
-		System.out.println("storeLockWriteObject : " + storeLockWriteObject);
-		System.out.println("storeLockReadObject : " + storeLockReadObject);
-	}
 
 	public static void main(String[] args) {
 		System.setProperty("java.security.policy","file:./java.policy");
@@ -79,7 +74,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 * @param js  : the remote reference of the JVNServer
 	 * @throws java.rmi.RemoteException,JvnException
 	 **/
-	public void jvnRegisterObject(String jon, JvnObject jo, JvnRemoteServer js) throws java.rmi.RemoteException,jvn.JvnException{
+	public synchronized void jvnRegisterObject(String jon, JvnObject jo, JvnRemoteServer js) throws java.rmi.RemoteException,jvn.JvnException{
 		Integer idJvnO = jo.jvnGetObjectId() ;
 		this.storeJvnObject.put(idJvnO, jo);
 		this.storeNameObject.put(jon, idJvnO);
@@ -93,7 +88,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 * @param js : the remote reference of the JVNServer
 	 * @throws java.rmi.RemoteException,JvnException
 	 **/
-	public JvnObject jvnLookupObject(String jon, JvnRemoteServer js) throws java.rmi.RemoteException,jvn.JvnException{
+	public synchronized JvnObject jvnLookupObject(String jon, JvnRemoteServer js) throws java.rmi.RemoteException,jvn.JvnException{
 		Integer joid = this.storeNameObject.get(jon) ;
 
 		JvnObject toReturn = null;
@@ -172,6 +167,21 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 * @throws java.rmi.RemoteException, JvnException
 	 **/
 	public void jvnTerminate(JvnRemoteServer js) throws java.rmi.RemoteException, JvnException {
-		// to be completed
+		for(Entry<Integer, JvnRemoteServer> e : this.storeLockWriteObject.entrySet()){
+			if(e.getValue().equals(js)){
+				Serializable updated = null;
+				updated = storeLockWriteObject.get(e.getKey()).jvnInvalidateWriter(e.getKey());
+				JvnObject updated_object = new JvnObjectImpl(e.getKey(),updated);			
+				storeJvnObject.put(e.getKey(),updated_object);
+				this.storeLockWriteObject.remove(e.getKey());
+			}
+		}
+		for(Entry<Integer, List<JvnRemoteServer>> e : this.storeLockReadObject.entrySet()){
+			for(JvnRemoteServer jsR : e.getValue()){
+				if(jsR.equals(js)){
+					this.storeLockReadObject.get(e.getKey()).remove(js) ;
+				}
+			}
+		}
 	}
 }

@@ -1,7 +1,6 @@
 package test;
 
 import java.io.Serializable;
-import java.rmi.RemoteException;
 
 import jvn.JvnException;
 import jvn.JvnObject;
@@ -31,15 +30,6 @@ public class SimpleTest {
 				js.jvnRegisterObject("Integer1", jo2);
 			}
 		} catch (JvnException e) {
-			e.printStackTrace();
-		}
-		try {
-			js.getCoordinator().debugPrintMap();
-		} catch (RemoteException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JvnException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

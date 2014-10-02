@@ -5,7 +5,6 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import jvn.JvnCoordImpl.LOCK_STATE;
 
 public class JvnObjectImpl implements JvnObject {
 	private static final long serialVersionUID = -3809665057739668303L;
@@ -16,11 +15,11 @@ public class JvnObjectImpl implements JvnObject {
 	public final Lock lock = new ReentrantLock();
 	public final Condition lockCondition = lock.newCondition();
 	
-	private LOCK_STATE lock_state = LOCK_STATE.RLT;
-	public LOCK_STATE getLock_state() {
+	private JvnLOCK_STATE lock_state = JvnLOCK_STATE.RLT;
+	public JvnLOCK_STATE getLock_state() {
 		return lock_state;
 	}
-	public void setLock_state(LOCK_STATE lock_state) {
+	public void setLock_state(JvnLOCK_STATE lock_state) {
 		this.lock_state = lock_state;
 	}
 
@@ -41,12 +40,12 @@ public class JvnObjectImpl implements JvnObject {
 		JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlock().lock();
 		try {
 			JvnObject o = JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId);
-			if (o.getLock_state() == LOCK_STATE.RLT)
-				o.setLock_state(LOCK_STATE.RLC);
-			else if (o.getLock_state() == LOCK_STATE.WLT || o.getLock_state() == LOCK_STATE.RLT_WLC)
-				o.setLock_state(LOCK_STATE.WLC);
+			if (o.getLock_state() == JvnLOCK_STATE.RLT)
+				o.setLock_state(JvnLOCK_STATE.RLC);
+			else if (o.getLock_state() == JvnLOCK_STATE.WLT || o.getLock_state() == JvnLOCK_STATE.RLT_WLC)
+				o.setLock_state(JvnLOCK_STATE.WLC);
 			else
-				o.setLock_state(LOCK_STATE.NL);
+				o.setLock_state(JvnLOCK_STATE.NL);
 		} finally {
 			JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlockCondition().signalAll();
 			JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlock().unlock();
@@ -64,7 +63,7 @@ public class JvnObjectImpl implements JvnObject {
 	public void jvnInvalidateReader() throws JvnException {
 		JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlock().lock();
 		try {
-			if (lock_state == LOCK_STATE.RLT){
+			if (lock_state == JvnLOCK_STATE.RLT){
 				try {
 					JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlockCondition().await();
 				} catch (InterruptedException e) {
@@ -72,7 +71,7 @@ public class JvnObjectImpl implements JvnObject {
 				}
 			}
 			JvnObject o = JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId);
-			o.setLock_state(LOCK_STATE.NL); 
+			o.setLock_state(JvnLOCK_STATE.NL); 
 		} finally {
 			JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlock().unlock();
 		}
@@ -81,14 +80,14 @@ public class JvnObjectImpl implements JvnObject {
 	public Serializable jvnInvalidateWriter() throws JvnException {
 		JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlock().lock();
 		try {
-			if (lock_state == LOCK_STATE.WLT){
+			if (lock_state == JvnLOCK_STATE.WLT){
 				try {
 					JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlockCondition().await();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
-			this.setLock_state(LOCK_STATE.NL);
+			this.setLock_state(JvnLOCK_STATE.NL);
 			JvnServerImpl.jvnGetServer().getCacheJvnObject().put(this.jvnObjectId, this);
 		} finally {
 			JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlock().unlock();
@@ -99,14 +98,14 @@ public class JvnObjectImpl implements JvnObject {
 	public Serializable jvnInvalidateWriterForReader() throws JvnException {
 		JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlock().lock();
 		try {
-			if (lock_state == LOCK_STATE.WLT){
+			if (lock_state == JvnLOCK_STATE.WLT){
 				try {
 					JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlockCondition().await();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
-			this.setLock_state(LOCK_STATE.RLC);
+			this.setLock_state(JvnLOCK_STATE.RLC);
 			JvnServerImpl.jvnGetServer().getCacheJvnObject().put(this.jvnObjectId, this);
 		} finally {
 			JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlock().unlock();
