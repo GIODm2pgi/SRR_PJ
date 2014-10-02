@@ -14,7 +14,6 @@ import java.io.*;
 /**
  * Remote Interface of the JVN Coordinator  
  */
-
 public interface JvnRemoteCoord extends Remote {
 		
 	/**
