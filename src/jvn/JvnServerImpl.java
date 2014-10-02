@@ -15,21 +15,42 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.HashMap;
 
-
-
-
+/**
+ * Implementation of the JvnServer.
+ */
 public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer, JvnRemoteServer{
+	/**
+	 * UID of the class.
+	 */
 	private static final long serialVersionUID = -1834717182805714127L;
 
-	// A JVN server is managed as a singleton 
+	/**
+	 * A JVN server is managed as a singleton 
+	 */
 	private static JvnServerImpl js = null;
 
+	/**
+	 * The local store of the JvnObject.
+	 */
 	private HashMap<Integer, JvnObject> cacheJvnObject = null ;
+	
+	/**
+	 * The coordinator to interact.
+	 */
+	private JvnRemoteCoord coordinator;
+	
+	/**
+	 * Get the local store of the JvnObject.
+	 * @return the current local store of the JvnObject.
+	 */
 	public HashMap<Integer, JvnObject> getCacheJvnObject() {
 		return cacheJvnObject;
 	}
 
-	private JvnRemoteCoord coordinator;
+	/**
+	 * Get the coordinator.
+	 * @return the current coordinator.
+	 */
 	public JvnRemoteCoord getCoordinator() {
 		return coordinator;
 	}
@@ -40,14 +61,20 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 **/
 	private JvnServerImpl() throws Exception {
 		super();
-
+		
+		// Treat security.
 		System.setProperty("java.security.policy","file:./java.policy");
-		if (System.getSecurityManager() == null) { System.setSecurityManager(new SecurityManager()); }
+		if (System.getSecurityManager() == null) { 
+			System.setSecurityManager(new SecurityManager()); 
+		}
+		
+		// Get the coordinator with RMI.
 		String host = "localhost";
 		Registry registry = LocateRegistry.getRegistry(host);
 		coordinator = (JvnRemoteCoord) registry.lookup("COORDINATOR");
 		System.out.println ("Coordinator ready on server");
 
+		// Create the local store.
 		this.cacheJvnObject = new HashMap<Integer, JvnObject>() ;
 	}
 
@@ -95,7 +122,6 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 		}
 
 		JvnObject toReturn = new JvnObjectImpl(jvnObjectId, o);
-
 		this.cacheJvnObject.put(jvnObjectId, toReturn);
 
 		return toReturn ; 
@@ -110,9 +136,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	public void jvnRegisterObject(String jon, JvnObject jo) throws jvn.JvnException {
 		try {
 			this.getCoordinator().jvnRegisterObject(jon, jo, this);
-
 			cacheJvnObject.put(jo.jvnGetObjectId(), jo);
-
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
@@ -128,7 +152,6 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 		JvnObject toReturn = null ;
 		try {
 			toReturn = this.getCoordinator().jvnLookupObject(jon, this);
-
 			if (toReturn != null){
 				cacheJvnObject.put(toReturn.jvnGetObjectId(), toReturn);
 				cacheJvnObject.get(toReturn.jvnGetObjectId()).jvnUnLock();
