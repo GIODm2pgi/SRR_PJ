@@ -8,6 +8,7 @@
 
 package irc;
 
+
 public class Sentence implements java.io.Serializable {
 	private static final long serialVersionUID = -5744335023076980519L;
 	
@@ -19,6 +20,12 @@ public class Sentence implements java.io.Serializable {
 	
 	public void write(String text) {
 		data = text;
+		try {
+			Thread.sleep(4000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	public String read() {
 		return data;	

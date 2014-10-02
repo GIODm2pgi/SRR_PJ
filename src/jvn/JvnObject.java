@@ -8,6 +8,9 @@
 package jvn;
 
 import java.io.*;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import jvn.JvnCoordImpl.LOCK_STATE;
 
@@ -18,6 +21,9 @@ import jvn.JvnCoordImpl.LOCK_STATE;
  */
 
 public interface JvnObject extends Serializable {
+
+	public Lock getlock();
+	public Condition getlockCondition();
 
 	/**
 	 * Get a Read lock on the object 

@@ -122,7 +122,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 * @return the current JVN object state
 	 * @throws java.rmi.RemoteException, JvnException
 	 **/
-	public Serializable jvnLockRead(int joi, JvnRemoteServer js) throws java.rmi.RemoteException, JvnException{
+	public synchronized Serializable jvnLockRead(int joi, JvnRemoteServer js) throws java.rmi.RemoteException, JvnException{
 		Serializable updated = null;
 		if (storeLockWriteObject.containsKey(joi)){
 			updated = storeLockWriteObject.get(joi).jvnInvalidateWriterForReader(joi);
@@ -146,7 +146,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 * @return the current JVN object state
 	 * @throws java.rmi.RemoteException, JvnException
 	 **/
-	public Serializable jvnLockWrite(int joi, JvnRemoteServer js) throws java.rmi.RemoteException, JvnException{
+	public synchronized Serializable jvnLockWrite(int joi, JvnRemoteServer js) throws java.rmi.RemoteException, JvnException{
 		Serializable updated = null;
 		if (storeLockWriteObject.containsKey(joi)){
 			updated = storeLockWriteObject.get(joi).jvnInvalidateWriter(joi);
