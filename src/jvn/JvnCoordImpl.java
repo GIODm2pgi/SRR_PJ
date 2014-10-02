@@ -85,7 +85,6 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		Integer idJvnO = jo.jvnGetObjectId() ;
 		this.storeJvnObject.put(idJvnO, jo);
 		this.storeNameObject.put(jon, idJvnO);
-		//this.storeLockWriteObject.put(idJvnO, js);
 		this.storeLockReadObject.put(idJvnO, new ArrayList<JvnRemoteServer>());
 		this.storeLockReadObject.get(idJvnO).add(js);
 	}
@@ -98,7 +97,17 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 **/
 	public JvnObject jvnLookupObject(String jon, JvnRemoteServer js) throws java.rmi.RemoteException,jvn.JvnException{
 		Integer joid = this.storeNameObject.get(jon) ;
-		JvnObject toReturn = this.storeJvnObject.get(joid) ;
+
+		JvnObject toReturn = null;
+		if (storeLockWriteObject.containsKey(joid)){
+			Serializable updated = storeLockWriteObject.get(joid).jvnInvalidateWriterForReader(joid);
+			toReturn = new JvnObjectImpl(joid,updated);			
+			storeJvnObject.put(joid,toReturn);
+			storeLockReadObject.get(joid).add(storeLockWriteObject.get(joid));
+			storeLockWriteObject.remove(joid);
+		}
+		else
+			toReturn = this.storeJvnObject.get(joid) ;
 
 		if (toReturn != null)
 			this.storeLockReadObject.get(joid).add(js);
@@ -121,11 +130,11 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 			storeJvnObject.put(joi,updated_object);
 			storeLockReadObject.get(joi).add(storeLockWriteObject.get(joi));
 			storeLockWriteObject.remove(joi);
-			storeLockReadObject.get(joi).add(js);
 		}
-		else {
-			System.out.println("Error readlock coord");
-		}
+		else
+			updated = storeJvnObject.get(joi).jvnGetObjectState();
+
+		storeLockReadObject.get(joi).add(js);
 
 		return updated;
 	}

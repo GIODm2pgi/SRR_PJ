@@ -52,6 +52,7 @@ public class JvnObjectImpl implements JvnObject {
 	}
 
 	public void jvnInvalidateReader() throws JvnException {
+		
 		if (lock_state == LOCK_STATE.RLT){
 			// wait unlock
 		}

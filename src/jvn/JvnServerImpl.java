@@ -134,9 +134,11 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 		try {
 			toReturn = this.getCoordinator().jvnLookupObject(jon, this);
 
-			if (toReturn != null)
+			if (toReturn != null){
 				cacheJvnObject.put(toReturn.jvnGetObjectId(), toReturn);
-
+				cacheJvnObject.get(toReturn.jvnGetObjectId()).jvnUnLock();
+				toReturn = cacheJvnObject.get(toReturn.jvnGetObjectId());
+			}
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
