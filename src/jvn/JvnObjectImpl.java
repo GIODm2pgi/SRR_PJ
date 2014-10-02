@@ -37,8 +37,7 @@ public class JvnObjectImpl implements JvnObject {
 		this.objectJvn = JvnServerImpl.jvnGetServer().jvnLockWrite(this.jvnObjectId);
 	}
 
-	public void jvnUnLock() throws JvnException {
-		// signal		
+	public void jvnUnLock() throws JvnException {		
 		JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlock().lock();
 		try {
 			JvnObject o = JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId);
@@ -66,11 +65,9 @@ public class JvnObjectImpl implements JvnObject {
 		JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlock().lock();
 		try {
 			if (lock_state == LOCK_STATE.RLT){
-				// wait unlock
 				try {
 					JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlockCondition().await();
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -88,7 +85,6 @@ public class JvnObjectImpl implements JvnObject {
 				try {
 					JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlockCondition().await();
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -107,7 +103,6 @@ public class JvnObjectImpl implements JvnObject {
 				try {
 					JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlockCondition().await();
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}

@@ -10,7 +10,6 @@ package jvn;
 import java.io.*;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 import jvn.JvnCoordImpl.LOCK_STATE;
 

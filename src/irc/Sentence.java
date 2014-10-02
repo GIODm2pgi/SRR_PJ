@@ -20,12 +20,7 @@ public class Sentence implements java.io.Serializable {
 	
 	public void write(String text) {
 		data = text;
-		try {
-			Thread.sleep(4000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		//try {Thread.sleep(2500);} catch (InterruptedException e) {}
 	}
 	public String read() {
 		return data;	
