@@ -1,5 +1,39 @@
 package jvn;
 
+/**
+ * Enumeration of the different states
+ * possible of locked.
+ */
 public enum JvnLOCK_STATE {
-	NL , RLC , WLC , RLT , WLT, RLT_WLC
+
+	/**
+	 * No lock.
+	 */
+	NL , 
+
+	/**
+	 * Lock read cached.
+	 */
+	RLC , 
+
+	/**
+	 * Lock write cached.
+	 */
+	WLC , 
+
+	/**
+	 * Lock read taken.
+	 */
+	RLT , 
+
+	/**
+	 * Lock write taken.
+	 */
+	WLT, 
+
+	/**
+	 * Lock read taken and lock write cached.
+	 */
+	RLT_WLC
+
 }
