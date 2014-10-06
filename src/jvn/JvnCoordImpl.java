@@ -239,23 +239,31 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	public void jvnTerminate(JvnRemoteServer js) throws java.rmi.RemoteException, JvnException {
 
 		// Treat Write Lock.
+		List<Integer> tmp = new ArrayList<Integer>();
 		for(Entry<Integer, JvnRemoteServer> e : this.storeLockWriteObject.entrySet()){
 			if(e.getValue().equals(js)){
-				Serializable updated = null;
-				updated = this.storeLockWriteObject.get(e.getKey()).jvnInvalidateWriter(e.getKey());
-				JvnObject updated_object = new JvnObjectImpl(e.getKey(),updated);			
-				this.storeJvnObject.put(e.getKey(),updated_object);
-				this.storeLockWriteObject.remove(e.getKey());
+				tmp.add(e.getKey());
 			}
+		}
+		for(Integer todel : tmp){
+			Serializable updated = null;
+			updated = this.storeLockWriteObject.get(todel).jvnInvalidateWriter(todel);
+			JvnObject updated_object = new JvnObjectImpl(todel,updated);			
+			this.storeJvnObject.put(todel,updated_object);
+			this.storeLockWriteObject.remove(todel);
 		}
 
 		// Treat Read Lock.
+		tmp = new ArrayList<Integer>();
 		for(Entry<Integer, List<JvnRemoteServer>> e : this.storeLockReadObject.entrySet()){
 			for(JvnRemoteServer jsR : e.getValue()){
 				if(jsR.equals(js)){
-					this.storeLockReadObject.get(e.getKey()).remove(js) ;
+					tmp.add(e.getKey());
 				}
 			}
+		}
+		for(Integer todel : tmp){
+			this.storeLockReadObject.get(todel).remove(js) ;
 		}
 	}
 

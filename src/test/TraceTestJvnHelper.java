@@ -121,8 +121,7 @@ public class TraceTestJvnHelper {
 				try {
 					jo.jvnLockRead();
 					test = ((IntegerForJvn)jo.jvnGetObjectState()).get();
-					jo.jvnUnLock();
-	
+					jo.jvnUnLock();	
 				} catch (JvnException e) {
 					System.err.println("Erreur lors du mécanisme d'exécution de trace.");
 					e.printStackTrace();
@@ -146,6 +145,6 @@ public class TraceTestJvnHelper {
 				i++ ;
 			}
 		}
-	//JvnServerImpl.jvnGetServer().jvnTerminate();
+	JvnServerImpl.jvnGetServer().jvnTerminate();
 	}
 }
