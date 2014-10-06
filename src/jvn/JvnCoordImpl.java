@@ -143,6 +143,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		// Treat a Write Lock.
 		if (this.storeLockWriteObject.containsKey(joid)){
 			Serializable updated = this.storeLockWriteObject.get(joid).jvnInvalidateWriterForReader(joid);
+			System.out.println("Fin InvalidateWriterForReader");
 			this.storeJvnObject.get(joid).setObjectState(updated);
 			this.storeLockReadObject.get(joid).add(storeLockWriteObject.get(joid));
 			this.storeLockWriteObject.remove(joid);
@@ -165,6 +166,8 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 * @throws java.rmi.RemoteException, JvnException
 	 */
 	public synchronized Serializable jvnLockRead(int joi, JvnRemoteServer js) throws java.rmi.RemoteException, JvnException{
+		System.out.println("LOCK_READ");
+		
 		Serializable updated = null;
 
 		// Check
@@ -175,6 +178,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		// Treat a Write Lock.
 		if (this.storeLockWriteObject.containsKey(joi)){
 			updated = this.storeLockWriteObject.get(joi).jvnInvalidateWriterForReader(joi);
+			System.out.println("Fin InvalidateWriterForReader");
 			this.storeJvnObject.get(joi).setObjectState(updated);
 			this.storeLockReadObject.get(joi).add(this.storeLockWriteObject.get(joi));
 			this.storeLockWriteObject.remove(joi);
@@ -197,6 +201,8 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 * @throws java.rmi.RemoteException, JvnException
 	 */
 	public synchronized Serializable jvnLockWrite(int joi, JvnRemoteServer js) throws java.rmi.RemoteException, JvnException{
+		System.out.println("LOCK_WRITE");
+		
 		Serializable updated = null;
 
 		// Check
@@ -207,6 +213,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		// Treat a Write Lock.
 		if (this.storeLockWriteObject.containsKey(joi)){
 			updated = this.storeLockWriteObject.get(joi).jvnInvalidateWriter(joi);
+			System.out.println("Fin InvalidateWriter");
 			this.storeJvnObject.get(joi).setObjectState(updated);
 			this.storeLockWriteObject.remove(joi);
 		}
@@ -216,8 +223,10 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 
 		// Treat Read Lock.
 		for (JvnRemoteServer s : this.storeLockReadObject.get(joi)){
-			if (!s.equals(js))
+			if (!s.equals(js)){
 				s.jvnInvalidateReader(joi);
+				System.out.println("Fin InvalidateWriter");
+			}
 		}
 		this.storeLockReadObject.put(joi, new ArrayList<JvnRemoteServer>());
 
@@ -244,6 +253,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		for(Integer todel : tmp){
 			Serializable updated = null;
 			updated = this.storeLockWriteObject.get(todel).jvnInvalidateWriter(todel);
+			System.out.println("Fin InvalidateWriter");
 			this.storeJvnObject.get(todel).setObjectState(updated);
 			this.storeLockWriteObject.remove(todel);
 		}
