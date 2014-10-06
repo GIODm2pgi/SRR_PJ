@@ -151,7 +151,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		else{
 			toReturn = this.storeJvnObject.get(joid) ;
 		}
-
+		
 		// Add Read Lock.
 		if (toReturn != null)
 			this.storeLockReadObject.get(joid).add(js);
@@ -185,6 +185,8 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		else{
 			updated = storeJvnObject.get(joi).jvnGetObjectState();
 		}
+		
+		System.out.println("fin invalidate read");
 
 		// Add Read Lock.
 		this.storeLockReadObject.get(joi).add(js);
@@ -217,6 +219,8 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		else{
 			updated = this.storeJvnObject.get(joi).jvnGetObjectState();
 		}
+		
+		System.out.println("fin invalidate 1");
 
 		// Treat Read Lock.
 		for (JvnRemoteServer s : this.storeLockReadObject.get(joi)){
