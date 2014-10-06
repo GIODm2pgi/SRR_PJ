@@ -97,4 +97,9 @@ public interface JvnObject extends Serializable {
 	 */
 	public Condition getlockCondition();
 
+	/**
+	 * Set the current state of the JVN object.
+	 */
+	public void setObjectState(Serializable s);
+
 }

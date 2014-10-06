@@ -38,7 +38,7 @@ public class JvnObjectImpl implements JvnObject {
 	/**
 	 * The lock state of the JvnObject.
 	 */
-	private JvnLOCK_STATE lock_state = JvnLOCK_STATE.RLT;
+	private JvnLOCK_STATE lock_state = JvnLOCK_STATE.WLT;
 
 	/**
 	 * Get the current lock state of the JvnObject.
@@ -84,7 +84,7 @@ public class JvnObjectImpl implements JvnObject {
 	 * Ask for the unlock.
 	 * Just transfer the request at the server.
 	 */
-	public void jvnUnLock() throws JvnException {
+	public synchronized void jvnUnLock() throws JvnException {
 		// Lock
 		JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlock().lock();
 		try {
@@ -143,8 +143,7 @@ public class JvnObjectImpl implements JvnObject {
 				}
 			}
 			// Unlock the reader.
-			JvnObject o = JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId);
-			o.setLock_state(JvnLOCK_STATE.NL); 
+			JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).setLock_state(JvnLOCK_STATE.NL);
 		} finally {
 			// Unlock
 			JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlock().unlock();
@@ -168,8 +167,7 @@ public class JvnObjectImpl implements JvnObject {
 				}
 			}
 			// Unlock the writer.
-			this.setLock_state(JvnLOCK_STATE.NL);
-			JvnServerImpl.jvnGetServer().getCacheJvnObject().put(this.jvnObjectId, this);
+			JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).setLock_state(JvnLOCK_STATE.NL);
 		} finally {
 			// Unlock
 			JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlock().unlock();
@@ -194,12 +192,12 @@ public class JvnObjectImpl implements JvnObject {
 				}
 			}
 			// Unlock the writer for reader.
-			this.setLock_state(JvnLOCK_STATE.RLC);
-			JvnServerImpl.jvnGetServer().getCacheJvnObject().put(this.jvnObjectId, this);
+			JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).setLock_state(JvnLOCK_STATE.RLC);
 		} finally {
 			// Unlock
 			JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlock().unlock();
 		}
+
 		return this.objectJvn;
 	}
 
@@ -216,5 +214,11 @@ public class JvnObjectImpl implements JvnObject {
 	public Condition getlockCondition() {
 		return this.lockCondition;
 	}
-
+	
+	/**
+	 * Set the current state of the JvnObject.
+	 */
+	public void setObjectState(Serializable s){
+		this.objectJvn=s;
+	}
 }

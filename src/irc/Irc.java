@@ -69,6 +69,7 @@ public class Irc {
 		frame=new JFrame();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE );
 		frame.setLayout(new GridLayout(1,1));
+		frame.setLocation(400, 50);
 		text=new TextArea(10,60);
 		text.setEditable(false);
 		text.setForeground(Color.red);

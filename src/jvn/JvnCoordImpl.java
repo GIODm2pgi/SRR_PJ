@@ -122,7 +122,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		this.storeJvnObject.put(idJvnO, jo);
 		this.storeNameObject.put(jon, idJvnO);
 		this.storeLockReadObject.put(idJvnO, new ArrayList<JvnRemoteServer>());
-		this.storeLockReadObject.get(idJvnO).add(js);
+		this.storeLockWriteObject.put(idJvnO, js);
 	}
 
 	/**
@@ -143,15 +143,13 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		// Treat a Write Lock.
 		if (this.storeLockWriteObject.containsKey(joid)){
 			Serializable updated = this.storeLockWriteObject.get(joid).jvnInvalidateWriterForReader(joid);
-			toReturn = new JvnObjectImpl(joid,updated);			
-			this.storeJvnObject.put(joid,toReturn);
+			this.storeJvnObject.get(joid).setObjectState(updated);
 			this.storeLockReadObject.get(joid).add(storeLockWriteObject.get(joid));
 			this.storeLockWriteObject.remove(joid);
 		}
-		else{
-			toReturn = this.storeJvnObject.get(joid) ;
-		}
-		
+
+		toReturn = this.storeJvnObject.get(joid) ;
+
 		// Add Read Lock.
 		if (toReturn != null)
 			this.storeLockReadObject.get(joid).add(js);
@@ -177,16 +175,13 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		// Treat a Write Lock.
 		if (this.storeLockWriteObject.containsKey(joi)){
 			updated = this.storeLockWriteObject.get(joi).jvnInvalidateWriterForReader(joi);
-			JvnObject updated_object = new JvnObjectImpl(joi,updated);			
-			this.storeJvnObject.put(joi,updated_object);
+			this.storeJvnObject.get(joi).setObjectState(updated);
 			this.storeLockReadObject.get(joi).add(this.storeLockWriteObject.get(joi));
 			this.storeLockWriteObject.remove(joi);
 		}
 		else{
 			updated = storeJvnObject.get(joi).jvnGetObjectState();
 		}
-		
-		System.out.println("fin invalidate read");
 
 		// Add Read Lock.
 		this.storeLockReadObject.get(joi).add(js);
@@ -212,15 +207,12 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		// Treat a Write Lock.
 		if (this.storeLockWriteObject.containsKey(joi)){
 			updated = this.storeLockWriteObject.get(joi).jvnInvalidateWriter(joi);
-			JvnObject updated_object = new JvnObjectImpl(joi,updated);			
-			this.storeJvnObject.put(joi,updated_object);
+			this.storeJvnObject.get(joi).setObjectState(updated);
 			this.storeLockWriteObject.remove(joi);
 		}
 		else{
 			updated = this.storeJvnObject.get(joi).jvnGetObjectState();
 		}
-		
-		System.out.println("fin invalidate 1");
 
 		// Treat Read Lock.
 		for (JvnRemoteServer s : this.storeLockReadObject.get(joi)){
@@ -252,8 +244,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		for(Integer todel : tmp){
 			Serializable updated = null;
 			updated = this.storeLockWriteObject.get(todel).jvnInvalidateWriter(todel);
-			JvnObject updated_object = new JvnObjectImpl(todel,updated);			
-			this.storeJvnObject.put(todel,updated_object);
+			this.storeJvnObject.get(todel).setObjectState(updated);
 			this.storeLockWriteObject.remove(todel);
 		}
 
