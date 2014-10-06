@@ -67,7 +67,7 @@ public class Irc {
 	public Irc(JvnObject jo) {
 		sentence = jo;
 		frame=new JFrame();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE );
+		//frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE );
 		frame.setLayout(new GridLayout(1,1));
 		frame.setLocation(400, 50);
 		text=new TextArea(10,60);
@@ -86,6 +86,9 @@ public class Irc {
 		write_button.addActionListener(new writeListener(this));
 		frame.add(write_button);
 		frame.add(unlock_button);
+		Button terminate_button = new Button("exit");
+		terminate_button.addActionListener(new terminateListener(this));
+		frame.add(terminate_button);
 		frame.setSize(545,201);
 		text.setBackground(Color.black); 
 		frame.setVisible(true);
@@ -163,7 +166,7 @@ class writeListener implements ActionListener {
 }
 
 /**
- * Internal class to manage user events (write) on the CHAT application
+ * Internal class to manage user events (unlock) on the CHAT application
  **/
 class unlockListener implements ActionListener {
 	Irc irc;
@@ -182,6 +185,29 @@ class unlockListener implements ActionListener {
 			
 			irc.unlock_button.setBackground(Color.GRAY);
 			
+		} catch (JvnException je) {
+			System.out.println("IRC problem  : " + je.getMessage());
+		}
+	}
+}
+
+/**
+ * Internal class to manage user events (terminate) on the CHAT application
+ **/
+class terminateListener implements ActionListener {
+	Irc irc;
+
+	public terminateListener (Irc i) {
+		irc = i;
+	}
+
+	/**
+	 * Management of user events
+	 **/
+	public void actionPerformed (ActionEvent e) {
+		try {	
+			JvnServerImpl.jvnGetServer().jvnTerminate();
+			System.exit(0);
 		} catch (JvnException je) {
 			System.out.println("IRC problem  : " + je.getMessage());
 		}
