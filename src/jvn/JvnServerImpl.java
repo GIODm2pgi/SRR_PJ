@@ -171,17 +171,16 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 **/
 	public Serializable jvnLockRead(int joi) throws JvnException {
 		Serializable toReturn = null;
-		JvnObject o = cacheJvnObject.get(joi);	
 		try {
-			if (o.getLock_state() == JvnLOCK_STATE.RLC){
-				o.setLock_state(JvnLOCK_STATE.RLT);
+			if (cacheJvnObject.get(joi).getLock_state() == JvnLOCK_STATE.RLC){
+				cacheJvnObject.get(joi).setLock_state(JvnLOCK_STATE.RLT);
 				toReturn = cacheJvnObject.get(joi).jvnGetObjectState();
 			}
-			else if (o.getLock_state() == JvnLOCK_STATE.WLC){
-				o.setLock_state(JvnLOCK_STATE.RLT_WLC);
+			else if (cacheJvnObject.get(joi).getLock_state() == JvnLOCK_STATE.WLC){
+				cacheJvnObject.get(joi).setLock_state(JvnLOCK_STATE.RLT_WLC);
 				toReturn = cacheJvnObject.get(joi).jvnGetObjectState();
 			}
-			else if (o.getLock_state() == JvnLOCK_STATE.NL){
+			else if (cacheJvnObject.get(joi).getLock_state() == JvnLOCK_STATE.NL){
 				toReturn = this.getCoordinator().jvnLockRead(joi, this);
 				cacheJvnObject.get(joi).setLock_state(JvnLOCK_STATE.RLT);
 				cacheJvnObject.get(joi).setObjectState(toReturn);
@@ -201,10 +200,9 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 **/
 	public Serializable jvnLockWrite(int joi) throws JvnException {
 		Serializable toReturn = null;
-		JvnObject o = cacheJvnObject.get(joi);	
 		try {		
-			if (o.getLock_state() == JvnLOCK_STATE.WLC || o.getLock_state() == JvnLOCK_STATE.RLT_WLC){
-				o.setLock_state(JvnLOCK_STATE.WLT);
+			if (cacheJvnObject.get(joi).getLock_state() == JvnLOCK_STATE.WLC || cacheJvnObject.get(joi).getLock_state() == JvnLOCK_STATE.RLT_WLC){
+				cacheJvnObject.get(joi).setLock_state(JvnLOCK_STATE.WLT);
 				toReturn = cacheJvnObject.get(joi).jvnGetObjectState();
 			}
 			else{	
