@@ -107,7 +107,7 @@ public class JvnObjectImpl implements JvnObject {
 			}
 		} finally {
 			// Unlock an condition.
-			JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlockCondition().signalAll();
+			JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlockCondition().signal();
 			JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlock().unlock();
 		}
 	}
