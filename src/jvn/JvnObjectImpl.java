@@ -52,7 +52,6 @@ public class JvnObjectImpl implements JvnObject {
 	 */
 	public void setLock_state(JvnLOCK_STATE lock_state) {
 		this.lock_state = lock_state;
-		System.out.println(this.lock_state);
 	}
 
 	/**

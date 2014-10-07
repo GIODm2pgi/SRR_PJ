@@ -194,8 +194,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 
 		// Treat a Write Lock.
 		if (this.storeLockWriteObject.containsKey(joi)){
-			System.out.println("BEFORE INVALIDATE");			updated = this.storeLockWriteObject.get(joi).jvnInvalidateWriter(joi);
-			System.out.println("AFTER INVALIDATE");
+			updated = this.storeLockWriteObject.get(joi).jvnInvalidateWriter(joi);
 			this.storeJvnObject.get(joi).setObjectState(updated);
 			this.storeLockWriteObject.remove(joi);
 		}
@@ -236,8 +235,6 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 			this.storeJvnObject.get(todel).setObjectState(updated);
 			this.storeLockWriteObject.remove(todel);
 		}
-
-		System.out.println("bug");
 
 		// Treat Read Lock.
 		tmp = new ArrayList<Integer>();
