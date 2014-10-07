@@ -52,6 +52,7 @@ public class JvnObjectImpl implements JvnObject {
 	 */
 	public void setLock_state(JvnLOCK_STATE lock_state) {
 		this.lock_state = lock_state;
+		System.out.println(this.lock_state);
 	}
 
 	/**
@@ -84,24 +85,23 @@ public class JvnObjectImpl implements JvnObject {
 	 * Ask for the unlock.
 	 * Just transfer the request at the server.
 	 */
-	public synchronized void jvnUnLock() throws JvnException {
+	public void jvnUnLock() throws JvnException {
 		// Lock
 		JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlock().lock();
 		try {
-			JvnObject o = JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId);
-			switch (o.getLock_state()) {
+			switch (JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getLock_state()) {
 
 			case RLT:
-				o.setLock_state(JvnLOCK_STATE.RLC);
+				JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).setLock_state(JvnLOCK_STATE.RLC);
 				break;
 
 			case RLT_WLC:
 			case WLT:
-				o.setLock_state(JvnLOCK_STATE.WLC);
+				JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).setLock_state(JvnLOCK_STATE.WLC);
 				break;
 
 			default:
-				o.setLock_state(JvnLOCK_STATE.NL);
+				JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).setLock_state(JvnLOCK_STATE.NL);
 				break;
 
 			}
@@ -134,7 +134,7 @@ public class JvnObjectImpl implements JvnObject {
 		JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlock().lock();
 		try {
 			// Case Wait
-			if (lock_state == JvnLOCK_STATE.RLT){
+			while (lock_state == JvnLOCK_STATE.RLT){
 				try {
 					// Wait
 					JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlockCondition().await();
@@ -157,8 +157,9 @@ public class JvnObjectImpl implements JvnObject {
 		// Lock
 		JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlock().lock();
 		try {
+		
 			// Case Wait
-			if (lock_state == JvnLOCK_STATE.WLT){
+			while (lock_state == JvnLOCK_STATE.WLT || lock_state == JvnLOCK_STATE.RLT_WLC){
 				try {
 					// Wait
 					JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlockCondition().await();
@@ -183,7 +184,7 @@ public class JvnObjectImpl implements JvnObject {
 		JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlock().lock();
 		try {
 			// Case Wait
-			if (lock_state == JvnLOCK_STATE.WLT){
+			while (lock_state == JvnLOCK_STATE.WLT || lock_state == JvnLOCK_STATE.RLT_WLC){
 				try {
 					// Wait
 					JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlockCondition().await();
