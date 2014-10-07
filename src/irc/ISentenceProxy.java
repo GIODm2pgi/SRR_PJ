@@ -6,6 +6,7 @@ import jvn.JvnReadMethod;
 import jvn.JvnWriteMethod;
 
 public interface ISentenceProxy extends Serializable {
+	
 	@JvnWriteMethod
 	public void write(String text); 
 	

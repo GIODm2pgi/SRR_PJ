@@ -14,12 +14,10 @@ import java.awt.TextArea;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.Serializable;
 
 import javax.swing.JFrame;
 
 import jvn.JvnException;
-import jvn.JvnObject;
 import jvn.JvnObjectProxy;
 import jvn.JvnServerImpl;
 
@@ -29,8 +27,6 @@ public class IrcWithJvnProxy {
 	public TextField	data;
 	JFrame 			frame;
 	ISentenceProxy sentence ;
-	
-
 
 	/**
 	 * main method
@@ -38,22 +34,8 @@ public class IrcWithJvnProxy {
 	 **/
 	public static void main(String argv[]) {
 		try {
-
-			// initialize JVN
-			JvnServerImpl js = JvnServerImpl.jvnGetServer();
-
-			// look up the IRC object in the JVN server
-			// if not found, create it, and register it in the JVN server
-			JvnObject jo = js.jvnLookupObject("IRC");
-
-			if (jo == null) {
-				jo = js.jvnCreateObject((Serializable) new SentenceProxy());
-				// after creation, I have a write lock on the object
-				jo.jvnUnLock();
-				js.jvnRegisterObject("IRC", jo);
-			}
 			// create the graphical part of the Chat application
-			new IrcWithJvnProxy(jo);
+			new IrcWithJvnProxy();
 
 		} catch (Exception e) {
 			System.out.println("IRC problem : " + e.getMessage());
@@ -62,10 +44,10 @@ public class IrcWithJvnProxy {
 
 	/**
 	 * IRC Constructor
-   @param jo the JVN object representing the Chat
+	 * @throws JvnException 
 	 **/
-	public IrcWithJvnProxy(JvnObject jo) {
-		sentence = (ISentenceProxy) JvnObjectProxy.newInstance(jo);
+	public IrcWithJvnProxy() throws JvnException {
+		sentence = (ISentenceProxy) JvnObjectProxy.instanceJvn(new SentenceProxy(), "IRC");
 		frame=new JFrame();
 		//frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE );
 		frame.setLayout(new GridLayout(1,1));
@@ -89,76 +71,76 @@ public class IrcWithJvnProxy {
 		text.setBackground(Color.black); 
 		frame.setVisible(true);
 	}
-}
 
 
-/**
- * Internal class to manage user events (read) on the CHAT application
- **/
-class readListenerForProxy implements ActionListener {
-	IrcWithJvnProxy irc;
+	/**
+	 * Internal class to manage user events (read) on the CHAT application
+	 **/
+	class readListenerForProxy implements ActionListener {
+		IrcWithJvnProxy irc;
 
-	public readListenerForProxy (IrcWithJvnProxy i) {
-		irc = i;
+		public readListenerForProxy (IrcWithJvnProxy i) {
+			irc = i;
+		}
+
+		/**
+		 * Management of user events
+		 **/
+		public void actionPerformed (ActionEvent e) {
+			// invoke the method
+			String s = irc.sentence.read();
+			// display the read value
+			irc.data.setText(s);
+			irc.text.append(s+"\n");
+		}
+
 	}
 
 	/**
-	 * Management of user events
+	 * Internal class to manage user events (write) on the CHAT application
 	 **/
-	public void actionPerformed (ActionEvent e) {
-		// invoke the method
-		String s = irc.sentence.read();
-		// display the read value
-		irc.data.setText(s);
-		irc.text.append(s+"\n");
-	}
+	class writeListenerForProxy implements ActionListener {
+		IrcWithJvnProxy irc;
 
-}
+		public writeListenerForProxy (IrcWithJvnProxy i) {
+			irc = i;
+		}
 
-/**
- * Internal class to manage user events (write) on the CHAT application
- **/
-class writeListenerForProxy implements ActionListener {
-	IrcWithJvnProxy irc;
+		/**
+		 * Management of user events
+		 **/
+		public void actionPerformed (ActionEvent e) {
+			// get the value to be written from the buffer
+			String s = irc.data.getText();
 
-	public writeListenerForProxy (IrcWithJvnProxy i) {
-		irc = i;
+			// lock the object in write mode
+			irc.sentence.write(s);
+		}
+
 	}
 
 	/**
-	 * Management of user events
+	 * Internal class to manage user events (terminate) on the CHAT application
 	 **/
-	public void actionPerformed (ActionEvent e) {
-		// get the value to be written from the buffer
-		String s = irc.data.getText();
+	class terminateListenerForProxy implements ActionListener {
+		IrcWithJvnProxy irc;
 
-		// lock the object in write mode
-		irc.sentence.write(s);
-	}
+		public terminateListenerForProxy (IrcWithJvnProxy i) {
+			irc = i;
+		}
 
-}
-
-/**
- * Internal class to manage user events (terminate) on the CHAT application
- **/
-class terminateListenerForProxy implements ActionListener {
-	IrcWithJvnProxy irc;
-
-	public terminateListenerForProxy (IrcWithJvnProxy i) {
-		irc = i;
-	}
-
-	/**
-	 * Management of user events
-	 **/
-	public void actionPerformed (ActionEvent e) {
-		try {	
-			JvnServerImpl.jvnGetServer().jvnTerminate();
-			System.exit(0);
-		} catch (JvnException je) {
-			System.out.println("IRC problem  : " + je.getMessage());
+		/**
+		 * Management of user events
+		 **/
+		public void actionPerformed (ActionEvent e) {
+			try {	
+				JvnServerImpl.jvnGetServer().jvnTerminate();
+				System.exit(0);
+			} catch (JvnException je) {
+				System.out.println("IRC problem  : " + je.getMessage());
+			}
 		}
 	}
-}
 
+}
 
