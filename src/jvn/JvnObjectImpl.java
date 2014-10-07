@@ -85,6 +85,7 @@ public class JvnObjectImpl implements JvnObject {
 	 * Just transfer the request at the server.
 	 */
 	public synchronized void jvnUnLock() throws JvnException {
+		System.out.println("Object : jvnUnLock");
 		// Lock
 		JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlock().lock();
 		try {
