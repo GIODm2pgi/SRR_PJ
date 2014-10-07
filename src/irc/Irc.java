@@ -29,8 +29,8 @@ public class Irc {
 	JFrame 			frame;
 	JvnObject       sentence;
 	
-	Button unlock_button;
-
+	Button unlock_button_write;
+	Button unlock_button_read;
 
 	/**
 	 * main method
@@ -80,12 +80,16 @@ public class Irc {
 		read_button.addActionListener(new readListener(this));
 		frame.add(read_button);
 		Button write_button = new Button("write");
-		unlock_button = new Button("unlock write");
-		unlock_button.setBackground(Color.GRAY);
-		unlock_button.addActionListener(new unlockListener(this));
+		unlock_button_write = new Button("unlock write");
+		unlock_button_write.setBackground(Color.GRAY);
+		unlock_button_write.addActionListener(new unlockListener(this));
+		unlock_button_read = new Button("unlock read");
+		unlock_button_read.setBackground(Color.GRAY);
+		unlock_button_read.addActionListener(new unlockListener(this));
 		write_button.addActionListener(new writeListener(this));
 		frame.add(write_button);
-		frame.add(unlock_button);
+		frame.add(unlock_button_write);
+		//frame.add(unlock_button2);
 		Button terminate_button = new Button("exit");
 		terminate_button.addActionListener(new terminateListener(this));
 		frame.add(terminate_button);
@@ -116,7 +120,8 @@ class readListener implements ActionListener {
 
 			// invoke the method
 			String s = ((Sentence)(irc.sentence.jvnGetObjectState())).read();
-
+			irc.unlock_button_read.setBackground(Color.GREEN);
+			
 			// unlock the object
 			irc.sentence.jvnUnLock();
 
@@ -148,13 +153,14 @@ class writeListener implements ActionListener {
 			// get the value to be written from the buffer
 			String s = irc.data.getText();
 
+			irc.unlock_button_write.setBackground(Color.GREEN);
+			
 			// lock the object in write mode
 			irc.sentence.jvnLockWrite();
 
 			// invoke the method
-			((Sentence)(irc.sentence.jvnGetObjectState())).write(s);
-			
-			irc.unlock_button.setBackground(Color.RED);
+			((Sentence)(irc.sentence.jvnGetObjectState())).write(s);			
+			irc.unlock_button_write.setBackground(Color.RED);
 
 			// unlock the object
 			//irc.sentence.jvnUnLock();
@@ -182,9 +188,9 @@ class unlockListener implements ActionListener {
 		try {	
 			// unlock the object
 			irc.sentence.jvnUnLock();
-			
-			irc.unlock_button.setBackground(Color.GRAY);
-			
+			irc.unlock_button_write.setBackground(Color.GRAY);
+			irc.unlock_button_read.setBackground(Color.GRAY);
+
 		} catch (JvnException je) {
 			System.out.println("IRC problem  : " + je.getMessage());
 		}
@@ -205,7 +211,10 @@ class terminateListener implements ActionListener {
 	 * Management of user events
 	 **/
 	public void actionPerformed (ActionEvent e) {
-		try {	
+		try {
+			irc.sentence.jvnUnLock();
+			irc.unlock_button_write.setBackground(Color.GRAY);
+			irc.unlock_button_read.setBackground(Color.GRAY);
 			JvnServerImpl.jvnGetServer().jvnTerminate();
 			System.exit(0);
 		} catch (JvnException je) {
