@@ -229,6 +229,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 				tmp.add(e.getKey());
 			}
 		}
+		
 		for(Integer todel : tmp){
 			Serializable updated = null;
 			updated = this.storeLockWriteObject.get(todel).jvnInvalidateWriter(todel);
