@@ -2,8 +2,8 @@ package irc;
 
 import java.io.Serializable;
 
-import jvn.JvnReadMethod;
-import jvn.JvnWriteMethod;
+import jvn.annots.JvnReadMethod;
+import jvn.annots.JvnWriteMethod;
 
 public interface ISentenceProxy extends Serializable {
 	

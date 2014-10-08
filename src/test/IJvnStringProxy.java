@@ -2,8 +2,8 @@ package test;
 
 import java.io.Serializable;
 
-import jvn.JvnMethod;
-import jvn.JvnMethod.JvnMethodChange;
+import jvn.annots.JvnMethod;
+import jvn.annots.JvnMethod.JvnMethodChange;
 
 public interface IJvnStringProxy extends Serializable {
 

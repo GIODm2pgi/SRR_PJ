@@ -1,7 +1,7 @@
 package test;
 
-import jvn.JvnReadMethod;
-import jvn.JvnWriteMethod;
+import jvn.annots.JvnReadMethod;
+import jvn.annots.JvnWriteMethod;
 
 /**
  * Classe définissant un entier utilisable

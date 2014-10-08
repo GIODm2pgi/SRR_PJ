@@ -4,7 +4,10 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 
-import jvn.JvnMethod.JvnMethodChange;
+import jvn.annots.JvnMethod;
+import jvn.annots.JvnReadMethod;
+import jvn.annots.JvnWriteMethod;
+import jvn.annots.JvnMethod.JvnMethodChange;
 
 /**
  * Class defining an interceptor by dynamic proxy.
