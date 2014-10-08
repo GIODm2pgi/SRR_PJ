@@ -1,7 +1,5 @@
 - Transparence sur la création de l'objet
-- Cache de taille limité
+- Cache de taille limitée
 - StressTest
-- Ajouter méthode start puis commit/rollback
-
 
 - Manuel (how to use + schéma)

@@ -21,8 +21,19 @@ public class SentenceProxy implements ISentenceProxy {
 	public void write(String text) {
 		data = text;
 	}
+	
+	public void duplicate(){
+		data += data;
+	}
+	
 	public String read() {
 		return data;	
 	}
+
+	public void start() {}
+
+	public void commit() {}
+
+	public void rollback() {}
 	
 }

@@ -28,6 +28,10 @@ public class IrcWithJvnProxy {
 	JFrame 			frame;
 	ISentenceProxy sentence ;
 
+	Button start;
+	Button commit;
+	Button rollback;
+	
 	/**
 	 * main method
 	 * create a JVN object nammed IRC for representing the Chat application
@@ -49,7 +53,6 @@ public class IrcWithJvnProxy {
 	public IrcWithJvnProxy() throws JvnException {
 		sentence = (ISentenceProxy) JvnObjectProxy.instanceJvn(new SentenceProxy(), "IRC");
 		frame=new JFrame();
-		//frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE );
 		frame.setLayout(new GridLayout(1,1));
 		frame.setLocation(400, 50);
 		text=new TextArea(10,60);
@@ -66,6 +69,24 @@ public class IrcWithJvnProxy {
 		frame.add(write_button);
 		Button terminate_button = new Button("exit");
 		terminate_button.addActionListener(new terminateListenerForProxy(this));
+		
+		Button duplicate = new Button("duplicate");
+		duplicate.addActionListener(new duplicateListenerForProxy(this));
+		frame.add(duplicate);
+		
+		start = new Button("start");
+		start.addActionListener(new startListenerForProxy(this));
+		start.setBackground(Color.GRAY);
+		frame.add(start);
+		
+		commit = new Button("commit");
+		commit.addActionListener(new commitListenerForProxy(this));
+		frame.add(commit);
+		
+		rollback = new Button("rollback");
+		rollback.addActionListener(new rollbackListenerForProxy(this));
+		frame.add(rollback);
+		
 		frame.add(terminate_button);
 		frame.setSize(545,201);
 		text.setBackground(Color.black); 
@@ -110,11 +131,12 @@ public class IrcWithJvnProxy {
 		 * Management of user events
 		 **/
 		public void actionPerformed (ActionEvent e) {
-			// get the value to be written from the buffer
+			// get the value to be written from the buffer			
 			String s = irc.data.getText();
-
+			
 			// lock the object in write mode
 			irc.sentence.write(s);
+			
 		}
 
 	}
@@ -139,6 +161,81 @@ public class IrcWithJvnProxy {
 			} catch (JvnException je) {
 				System.out.println("IRC problem  : " + je.getMessage());
 			}
+		}
+	}
+	
+	/**
+	 * Internal class to manage user events (start) on the CHAT application
+	 **/
+	class startListenerForProxy implements ActionListener {
+		IrcWithJvnProxy irc;
+
+		public startListenerForProxy (IrcWithJvnProxy i) {
+			irc = i;
+		}
+
+		/**
+		 * Management of user events
+		 **/
+		public void actionPerformed (ActionEvent e) {
+			irc.sentence.start();
+			start.setBackground(Color.RED);
+		}
+	}
+	
+	/**
+	 * Internal class to manage user events (commit) on the CHAT application
+	 **/
+	class commitListenerForProxy implements ActionListener {
+		IrcWithJvnProxy irc;
+
+		public commitListenerForProxy (IrcWithJvnProxy i) {
+			irc = i;
+		}
+
+		/**
+		 * Management of user events
+		 **/
+		public void actionPerformed (ActionEvent e) {
+			irc.sentence.commit();
+			start.setBackground(Color.GRAY);
+		}
+	}
+	
+	/**
+	 * Internal class to manage user events (rollback) on the CHAT application
+	 **/
+	class rollbackListenerForProxy implements ActionListener {
+		IrcWithJvnProxy irc;
+
+		public rollbackListenerForProxy (IrcWithJvnProxy i) {
+			irc = i;
+		}
+
+		/**
+		 * Management of user events
+		 **/
+		public void actionPerformed (ActionEvent e) {
+			irc.sentence.rollback();
+			start.setBackground(Color.GRAY);
+		}
+	}
+	
+	/**
+	 * Internal class to manage user events (duplicate) on the CHAT application
+	 **/
+	class duplicateListenerForProxy implements ActionListener {
+		IrcWithJvnProxy irc;
+
+		public duplicateListenerForProxy (IrcWithJvnProxy i) {
+			irc = i;
+		}
+
+		/**
+		 * Management of user events
+		 **/
+		public void actionPerformed (ActionEvent e) {
+			irc.sentence.duplicate();
 		}
 	}
 
