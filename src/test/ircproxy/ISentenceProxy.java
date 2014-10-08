@@ -1,4 +1,4 @@
-package irc;
+package test.ircproxy;
 
 import java.io.Serializable;
 

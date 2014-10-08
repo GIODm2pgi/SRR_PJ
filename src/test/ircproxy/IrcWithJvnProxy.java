@@ -5,7 +5,7 @@
  * Authors: 
  */
 
-package irc;
+package test.ircproxy;
 
 import java.awt.Button;
 import java.awt.Color;

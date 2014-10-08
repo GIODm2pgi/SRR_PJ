@@ -6,15 +6,15 @@
  * Authors: 
  */
 
-package irc;
+package test.ircproxy;
 
 
-public class Sentence implements java.io.Serializable {
+public class SentenceProxy implements ISentenceProxy {
 	private static final long serialVersionUID = -5744335023076980519L;
 	
 	String data;
   
-	public Sentence() {
+	public SentenceProxy() {
 		data = new String("");
 	}
 	
