@@ -31,6 +31,7 @@ public class IrcWithJvnProxy {
 	Button start;
 	Button commit;
 	Button rollback;
+	Button rollbackToMe;
 	
 	/**
 	 * main method
@@ -54,7 +55,7 @@ public class IrcWithJvnProxy {
 		sentence = (ISentenceProxy) JvnObjectProxy.instanceJvn(new SentenceProxy(), "IRC");
 		frame=new JFrame();
 		frame.setLayout(new GridLayout(1,1));
-		frame.setLocation(400, 50);
+		frame.setLocation(200, 50);
 		text=new TextArea(10,60);
 		text.setEditable(false);
 		text.setForeground(Color.red);
@@ -84,11 +85,15 @@ public class IrcWithJvnProxy {
 		frame.add(commit);
 		
 		rollback = new Button("rollback");
-		rollback.addActionListener(new rollbackListenerForProxy(this));
+		rollback.addActionListener(new rollbackListenerForProxy(this,false));
 		frame.add(rollback);
 		
+		rollbackToMe = new Button("rollbackToMe");
+		rollbackToMe.addActionListener(new rollbackListenerForProxy(this,true));
+		frame.add(rollbackToMe);
+		
 		frame.add(terminate_button);
-		frame.setSize(545,201);
+		frame.setSize(945,201);
 		text.setBackground(Color.black); 
 		frame.setVisible(true);
 	}
@@ -207,16 +212,21 @@ public class IrcWithJvnProxy {
 	 **/
 	class rollbackListenerForProxy implements ActionListener {
 		IrcWithJvnProxy irc;
+		Boolean toMe;
 
-		public rollbackListenerForProxy (IrcWithJvnProxy i) {
+		public rollbackListenerForProxy (IrcWithJvnProxy i, boolean b) {
 			irc = i;
+			toMe=b;
 		}
 
 		/**
 		 * Management of user events
 		 **/
 		public void actionPerformed (ActionEvent e) {
-			irc.sentence.rollback();
+			if (toMe)
+				irc.sentence.rollbackToMe();
+			else
+				irc.sentence.rollback();
 			start.setBackground(Color.GRAY);
 		}
 	}

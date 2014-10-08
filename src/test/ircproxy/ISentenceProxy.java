@@ -10,8 +10,9 @@ public interface ISentenceProxy extends JvnTransactionObject {
 	public void write(String text);
 	
 	@JvnWriteMethod
-	public void duplicate(); 
+	public void duplicate();
 	
 	@JvnReadMethod
 	public String read() ;
+	
 }

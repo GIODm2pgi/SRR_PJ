@@ -99,12 +99,17 @@ public class JvnObjectProxy implements InvocationHandler {
 		// Case jvnLockRead (method with annotation JvnWriteMethod).
 		if (method.getName().compareTo("start") == 0){
 			autoCommit = false;
+			jvnObject.jvnLockRead();
 			saveState = copy(jvnObject.jvnGetObjectState());
+			currentState = copy(jvnObject.jvnGetObjectState());
+			jvnObject.jvnUnLock();
 		}
 		else if (method.getName().compareTo("commit") == 0){
 			if (!autoCommit){
 				autoCommit = true;
+				jvnObject.jvnLockWrite();
 				jvnObject.setObjectState(copy(currentState));
+				jvnObject.jvnUnLock();
 				saveState = currentState = null;
 			}
 			else
@@ -113,11 +118,22 @@ public class JvnObjectProxy implements InvocationHandler {
 		else if (method.getName().compareTo("rollback") == 0){
 			if (!autoCommit){
 				autoCommit = true;
-				jvnObject.setObjectState(copy(saveState));
+				jvnObject.jvnInvalidateReader();
 				saveState = currentState = null;
 			}
 			else
 				System.out.println("Warning: call of rollback() without any call of start()");
+		}
+		else if (method.getName().compareTo("rollbackToMe") == 0){
+			if (!autoCommit){
+				autoCommit = true;
+				jvnObject.jvnLockWrite();
+				jvnObject.setObjectState(copy(saveState));
+				jvnObject.jvnUnLock();
+				saveState = currentState = null;
+			}
+			else
+				System.out.println("Warning: call of rollbackToMe() without any call of start()");
 		}
 		// Case jvnLockWrite (method with annotation JvnWriteMethod).
 		else if(method.isAnnotationPresent(JvnWriteMethod.class)
@@ -126,7 +142,7 @@ public class JvnObjectProxy implements InvocationHandler {
 			jvnObject.jvnLockWrite();
 
 			// Restore the current state
-			if (!autoCommit && currentState != null){
+			if (!autoCommit){
 				jvnObject.setObjectState(currentState);
 			}
 			
@@ -148,7 +164,7 @@ public class JvnObjectProxy implements InvocationHandler {
 			jvnObject.jvnLockRead();
 
 			// Restore the currente state
-			if (!autoCommit && currentState != null){
+			if (!autoCommit){
 				jvnObject.setObjectState(currentState);
 			}
 			

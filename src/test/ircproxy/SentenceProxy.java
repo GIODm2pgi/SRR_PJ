@@ -8,8 +8,11 @@
 
 package test.ircproxy;
 
+import jvn.JvnTransactionObjectAbstract;
 
-public class SentenceProxy implements ISentenceProxy {
+
+
+public class SentenceProxy extends JvnTransactionObjectAbstract implements ISentenceProxy {
 	private static final long serialVersionUID = -5744335023076980519L;
 	
 	String data;
@@ -29,11 +32,5 @@ public class SentenceProxy implements ISentenceProxy {
 	public String read() {
 		return data;	
 	}
-
-	public void start() {}
-
-	public void commit() {}
-
-	public void rollback() {}
 	
 }
