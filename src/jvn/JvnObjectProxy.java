@@ -53,13 +53,13 @@ public class JvnObjectProxy implements InvocationHandler {
 	 * @return The new or current object (as a proxy).
 	 * @throws JvnException
 	 */
-	public static Object instanceJvn(Serializable o, String objName) throws JvnException{
+	public static Object instanceJvn(Serializable o, String objName) throws JvnException {
 		JvnServerImpl js = JvnServerImpl.jvnGetServer();
 
 		// look up the IRC object in the JVN server
 		// if not found, create it, and register it in the JVN server
 		JvnObject jo = js.jvnLookupObject(objName);
-
+		
 		if (jo == null) {
 			jo = js.jvnCreateObject(o);
 			// after creation, I have a write lock on the object
@@ -92,8 +92,7 @@ public class JvnObjectProxy implements InvocationHandler {
 	 * Generate lock write section at the runtime if the method is annotate with
 	 * {@code JvnMethod(change = JvnMethodChange.WRITE)} or {@code JvnWriteMethod}.
 	 */
-	public Object invoke(Object proxy, Method method, Object[] args)
-			throws Throwable {
+	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
 		// The object return by the real method.
 		Object toReturn = null ;
 		// Case jvnLockRead (method with annotation JvnWriteMethod).

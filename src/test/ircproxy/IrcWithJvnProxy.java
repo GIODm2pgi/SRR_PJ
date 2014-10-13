@@ -43,7 +43,7 @@ public class IrcWithJvnProxy {
 			new IrcWithJvnProxy();
 
 		} catch (Exception e) {
-			System.out.println("IRC problem : " + e.getMessage());
+			System.out.println("IRC problem : " + e.getMessage() + "\nThe application can't start because the coordinator is out of order");
 		}
 	}
 
