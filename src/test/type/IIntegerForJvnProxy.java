@@ -1,15 +1,14 @@
-package test;
+package test.type;
 
 import jvn.annots.JvnReadMethod;
 import jvn.annots.JvnWriteMethod;
 
 /**
- * Classe définissant un entier utilisable
- * par Javanaise. 
+ * Interface définissant un entier utilisable
+ * par Javanaise Proxy. 
  */
 public interface IIntegerForJvnProxy extends java.io.Serializable {
 
-	
 	/**
 	 * Incrémente de 1 l'entier.
 	 */

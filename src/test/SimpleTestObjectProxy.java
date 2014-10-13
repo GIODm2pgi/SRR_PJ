@@ -2,6 +2,8 @@ package test;
 
 import java.io.Serializable;
 
+import test.type.IIntegerForJvnProxy;
+import test.type.IntegerForJvnProxy;
 import jvn.JvnObject;
 import jvn.JvnObjectProxy;
 import jvn.JvnServerImpl;

@@ -1,18 +1,21 @@
-package test;
+package test.tool;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import test.type.IIntegerForJvnProxy;
+import test.type.IntegerForJvnProxy;
 import jvn.JvnException;
 import jvn.JvnObject;
+import jvn.JvnObjectProxy;
 import jvn.JvnServerImpl;
 
 /**
  * Classe offrant une aide dans la génération 
- * de test par trace de JVN.
+ * de test par trace de JVN par JvnObjectProxy.
  */
-public class TraceTestJvnHelper {
+public class TraceTestJvnHelperProxy {
 
 	/**
 	 * Les temps d'attente entre les traces.
@@ -29,7 +32,7 @@ public class TraceTestJvnHelper {
 	/**
 	 * Permet de stocker les objets Jvn.
 	 */
-	private HashMap<String, JvnObject> myObjects = null ;
+	private HashMap<String, IIntegerForJvnProxy> myObjects = null ;
 	
 	/**
 	 * Construit un aider de test de trace pour
@@ -39,9 +42,9 @@ public class TraceTestJvnHelper {
 	 * 			la fome suivante "ABCD" où A, B, C, D sont des
 	 * 			variable.
 	 */
-	public TraceTestJvnHelper(int nbOfProcess,String variables){
+	public TraceTestJvnHelperProxy(int nbOfProcess,String variables){
 		this.traces = new ArrayList<String>(nbOfProcess) ;
-		this.myObjects = new HashMap<String, JvnObject>() ;
+		this.myObjects = new HashMap<String, IIntegerForJvnProxy>() ;
 		// initialize JVN
 		JvnServerImpl js = JvnServerImpl.jvnGetServer();
 		for (int i = 0; i < variables.length(); i++) {
@@ -49,12 +52,12 @@ public class TraceTestJvnHelper {
 			try {
 				JvnObject jo = js.jvnLookupObject(key);
 				if (jo == null) {
-					jo = js.jvnCreateObject((Serializable) new IntegerForJvn());
+					jo = js.jvnCreateObject((Serializable) new IntegerForJvnProxy());
 					// after creation, I have a write lock on the object
 					jo.jvnUnLock();
 					js.jvnRegisterObject(key, jo);
 				}
-				this.myObjects.put(key, jo) ;
+				this.myObjects.put(key, (IIntegerForJvnProxy) JvnObjectProxy.newInstance(jo)) ;
 			} catch (JvnException e) {
 				System.err.println("Erreur lors du mécanisme de trace.");
 				e.printStackTrace();
@@ -96,15 +99,8 @@ public class TraceTestJvnHelper {
 				Integer value = new Integer(next.substring(4, 5));
 				String variable = next.substring(2, 3);
 				System.out.println("P" + processus + " (t" + t + ")=> W(" + variable + ")=" + value);
-				JvnObject jo = this.myObjects.get(variable);
-				try {
-					jo.jvnLockWrite();
-					((IntegerForJvn)jo.jvnGetObjectState()).set(value);
-					jo.jvnUnLock();
-				} catch (JvnException e) {
-					System.err.println("Erreur lors du mécanisme d'exécution de trace.");
-					e.printStackTrace();
-				}
+				IIntegerForJvnProxy jo = this.myObjects.get(variable);
+				jo.set(value);
 				try {
 					Thread.sleep(this.timeToSleepWrite);
 				} catch (InterruptedException e) {
@@ -117,15 +113,8 @@ public class TraceTestJvnHelper {
 				Integer test = null ;
 				Integer value = new Integer(next.substring(4, 5));
 				String variable = next.substring(2, 3);
-				JvnObject jo = this.myObjects.get(variable);
-				try {
-					jo.jvnLockRead();
-					test = ((IntegerForJvn)jo.jvnGetObjectState()).get();
-					jo.jvnUnLock();	
-				} catch (JvnException e) {
-					System.err.println("Erreur lors du mécanisme d'exécution de trace.");
-					e.printStackTrace();
-				}
+				IIntegerForJvnProxy jo = this.myObjects.get(variable);
+				test = jo.get();
 				if(test.compareTo(value) != 0){
 					throw new JvnException("Erreur de trace.");
 				}
