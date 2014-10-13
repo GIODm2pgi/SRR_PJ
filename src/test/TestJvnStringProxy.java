@@ -1,5 +1,7 @@
 package test;
 
+import test.type.IJvnStringProxy;
+import test.type.JvnStringProxy;
 import jvn.JvnObjectProxy;
 
 public class TestJvnStringProxy {

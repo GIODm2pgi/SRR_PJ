@@ -1,8 +1,11 @@
-package test;
+package test.trace.object;
 
+import test.tool.AttenteRunProcess;
+import test.tool.TraceTestJvnHelperObj;
 import jvn.JvnException;
 
 /**
+ * Test Trace 4 with JvnObject.
  * Variables : A B C D
  * Processus : 4
  * 
@@ -11,7 +14,7 @@ import jvn.JvnException;
  * 3 : -----;-----;-----;W(D)4;-----;R(B)7;-----;-----;-----;R(B)8;-----;-----;-----
  * 4 : -----;-----;-----;-----;-----;-----;-----;-----;-----;R(C)3;-----;-----;-----
  */
-public class TraceTestJvn4 {
+public class TraceTestJvnObj4 {
 
 	private static String vars = "ABCD" ;
 	private static int procs = 4 ;
@@ -19,7 +22,7 @@ public class TraceTestJvn4 {
 	public static void main(String[] args) {
 		AttenteRunProcess sleeper = new AttenteRunProcess("sleeper", procs);
 		sleeper.setTimeToSleep(50);
-		TraceTestJvnHelper tracer = new TraceTestJvnHelper(procs, vars);
+		TraceTestJvnHelperObj tracer = new TraceTestJvnHelperObj(procs, vars);
 		tracer.addTraces(1, "W(A)5;-----;R(C)3;-----;W(B)7;R(A)5;W(D)5;-----;-----;R(A)5;W(D)4;-----;R(D)4");
 		tracer.addTraces(2, "-----;W(C)3;-----;-----;-----;-----;-----;W(B)8;R(C)3;-----;-----;R(D)4;-----");
 		tracer.addTraces(3, "-----;-----;-----;W(D)4;-----;R(B)7;-----;-----;-----;R(B)8;-----;-----;-----");

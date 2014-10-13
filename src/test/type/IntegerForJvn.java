@@ -1,11 +1,10 @@
-package test;
-
+package test.type;
 
 /**
  * Classe définissant un entier utilisable
  * par Javanaise. 
  */
-public class IntegerForJvnProxy implements IIntegerForJvnProxy {
+public class IntegerForJvn implements java.io.Serializable {
 	
 	/**
 	 * UID de la classe.
@@ -21,7 +20,7 @@ public class IntegerForJvnProxy implements IIntegerForJvnProxy {
 	 * Construit un Integer pour une utilisation
 	 * avec Javanaise. Initialisé à 0.
 	 */
-	public IntegerForJvnProxy(){
+	public IntegerForJvn(){
 		this.data = new Integer(0) ;
 	}
 	

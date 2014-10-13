@@ -1,7 +1,8 @@
-package test;
+package test.tool;
 
 import java.io.Serializable;
 
+import test.type.IntegerForJvn;
 import jvn.JvnException;
 import jvn.JvnObject;
 import jvn.JvnServerImpl;
