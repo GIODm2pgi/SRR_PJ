@@ -37,12 +37,8 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 */
 	private HashMap<Integer, JvnObject> cacheJvnObject = null ;
 
-	private final int R = 0;
-	private final int W = 1;
-	private final int WFR = 2;
-
-	private HashMap<Integer, Integer> listNeedInvalid = null ;
-	private Boolean intercepInv = false;
+	private HashMap<Integer, Boolean> listBooleanInv = null ;
+	private HashMap<Integer, Boolean> listIntercepInv = null ;
 
 	/**
 	 * The coordinator to interact.
@@ -95,8 +91,9 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 
 		// Create the local store.
 		this.cacheJvnObject = new HashMap<Integer, JvnObject>() ;
-		this.listNeedInvalid = new HashMap<Integer, Integer>() ;
 		this.listLockObject = new HashMap<Integer, Lock>();
+		this.listBooleanInv = new HashMap<Integer, Boolean>() ;
+		this.listIntercepInv = new HashMap<Integer, Boolean>() ;
 	}
 
 	private JvnRemoteCoord jvnGetRemoteCoord () throws RemoteException, NotBoundException {
@@ -170,22 +167,15 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 			lockLookUp.lock();
 			cacheJvnObject.put(jo.jvnGetObjectId(), jo);
 			listLockObject.put(jo.jvnGetObjectId(), new ReentrantLock());
+			listBooleanInv.put(jo.jvnGetObjectId(), false);
+			listIntercepInv.put(jo.jvnGetObjectId(), false);
 			lockLookUp.unlock();
-		} catch (Exception e) {
-			System.out.println("HERE");
-			this.jvnLookupObject(jon);
-		}
-		/* Version avant tantative de debuggage du multiple register
-		 lockLookUp.lock();
-		try {
-			this.getCoordinator().jvnRegisterObject(jon, jo, this);
-			cacheJvnObject.put(jo.jvnGetObjectId(), jo);
-			listLockObject.put(jo.jvnGetObjectId(), new ReentrantLock());
+		/*} catch (JvnException e) {
+			System.out.println("--- >lookup ");
+			this.jvnLookupObject(jon);*/
 		} catch (RemoteException e) {
 			e.printStackTrace();
 		}
-		lockLookUp.unlock();
-		 */
 	}
 
 	/**
@@ -195,11 +185,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 * @throws JvnException
 	 **/
 	public  JvnObject jvnLookupObject(String jon) throws jvn.JvnException {
-		lockLookUp.lock();
-
 		JvnObject toReturn = null ;
-
-		lockLookUp.unlock();
 		try {
 			System.out.println("LOOCK UP " + jon + js.toString().split("endpoint")[1].split("\\(")[0]);
 			toReturn = this.getCoordinator().jvnLookupObject(jon, this);
@@ -214,8 +200,11 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 		if (toReturn != null){
 			cacheJvnObject.put(toReturn.jvnGetObjectId(), toReturn);
 			listLockObject.put(toReturn.jvnGetObjectId(), new ReentrantLock());
+			listBooleanInv.put(toReturn.jvnGetObjectId(), false);
+			listIntercepInv.put(toReturn.jvnGetObjectId(), false);
 			cacheJvnObject.get(toReturn.jvnGetObjectId()).setLock_state(JvnLOCK_STATE.RLC);
 			toReturn = cacheJvnObject.get(toReturn.jvnGetObjectId());
+			System.out.println(toReturn.jvnGetObjectId());
 		}
 
 		lockLookUp.unlock();
@@ -241,7 +230,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 			toReturn = cacheJvnObject.get(joi).jvnGetObjectState();
 		}
 		else if (cacheJvnObject.get(joi).getLock_state() == JvnLOCK_STATE.NL){
-			intercepInv = true;
+			listIntercepInv.put(joi,true);
 			listLockObject.get(joi).unlock();
 			try {
 				toReturn = this.getCoordinator().jvnLockRead(joi, this);
@@ -250,10 +239,14 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 				return cacheJvnObject.get(joi).jvnGetObjectState();
 			}
 			listLockObject.get(joi).lock();
-			intercepInv = false;
+			listIntercepInv.put(joi,false);
 			cacheJvnObject.get(joi).setLock_state(JvnLOCK_STATE.RLT);
 			cacheJvnObject.get(joi).setObjectState(toReturn);
 			toReturn = cacheJvnObject.get(joi).jvnGetObjectState();
+			synchronized (listBooleanInv.get(joi)) {
+				listBooleanInv.get(joi).notifyAll();
+				listBooleanInv.put(joi,false);
+			}
 		}
 
 		listLockObject.get(joi).unlock();
@@ -267,29 +260,43 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 * @throws  JvnException
 	 **/
 	public Serializable jvnLockWrite(int joi) throws JvnException {
-		listLockObject.get(joi).lock();
-
+		try{
+			listLockObject.get(joi).lock();
+		} catch (Exception e){
+			e.printStackTrace();
+			System.out.println(joi + ":");
+			for (int i : listLockObject.keySet())
+				System.out.println ("-> "+ i);
+		}
 		Serializable toReturn = null;
 		if (cacheJvnObject.get(joi).getLock_state() == JvnLOCK_STATE.WLC){
 			cacheJvnObject.get(joi).setLock_state(JvnLOCK_STATE.WLT);
 			toReturn = cacheJvnObject.get(joi).jvnGetObjectState();
 		}
 		else{
-			System.out.println("Unlock W");
-			intercepInv = true;
+			System.out.println("Unlock W " + this.cacheJvnObject.get(joi).getLock_state());
+			listIntercepInv.put(joi,true);
 			listLockObject.get(joi).unlock();
 			try {
+				System.out.println("OHOHOHZUBI");
 				toReturn = this.getCoordinator().jvnLockWrite(joi, this);
+				System.out.println("ZUBI");
 			} catch (RemoteException e) {
 				System.out.println("Breakdown of the coordinator");
 				return cacheJvnObject.get(joi).jvnGetObjectState();
 			}
+			System.out.println("ZUBI!!!");
 			listLockObject.get(joi).lock();
-			intercepInv = false;
-			System.out.println("Lock W");
+			System.out.println("ZUBsdgfsdgdgI");
+			listIntercepInv.put(joi,false);
+			System.out.println("Lock W " + this.cacheJvnObject.get(joi).getLock_state());
 			cacheJvnObject.get(joi).setLock_state(JvnLOCK_STATE.WLT);
 			cacheJvnObject.get(joi).setObjectState(toReturn);
 			toReturn = cacheJvnObject.get(joi).jvnGetObjectState();
+			synchronized (listBooleanInv.get(joi)) {
+				listBooleanInv.get(joi).notifyAll();
+				listBooleanInv.put(joi,false);
+			}
 		}
 
 		listLockObject.get(joi).unlock();
@@ -304,12 +311,28 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 * @return void
 	 * @throws java.rmi.RemoteException,JvnException
 	 **/
-	public void jvnInvalidateReader(int joi) throws java.rmi.RemoteException,jvn.JvnException {
+	public void jvnInvalidateReader(int joi) throws java.rmi.RemoteException, jvn.JvnException {
 		lockLookUp.lock();
 		if (listLockObject.containsKey(joi)){
+			
+			System.out.println("===> R ");
+			synchronized (listBooleanInv.get(joi)) {			
+				if (listBooleanInv.get(joi))
+					try {
+						System.out.println("DODO R");
+						lockLookUp.unlock();
+						listBooleanInv.get(joi).wait();
+						lockLookUp.lock();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+			}
+
 			listLockObject.get(joi).lock();
-			if (intercepInv){
-				listNeedInvalid.put(joi, R);
+			System.out.println("=> R " + this.cacheJvnObject.get(joi).getLock_state());
+			if (listIntercepInv.get(joi)){
+				System.out.println("*");
+				//listNeedInvalid.put(joi, R);
 			}
 			else
 				this.cacheJvnObject.get(joi).jvnInvalidateReader();
@@ -326,10 +349,25 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 **/
 	public Serializable jvnInvalidateWriter(int joi) throws java.rmi.RemoteException,jvn.JvnException { 
 		lockLookUp.lock();
+		System.out.println("===> W ");
+		synchronized (listBooleanInv.get(joi)) {			
+			if (listBooleanInv.get(joi))
+				try {
+					System.out.println("DODO W");
+					lockLookUp.unlock();
+					listBooleanInv.get(joi).wait();
+					lockLookUp.lock();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+		}
+
 		listLockObject.get(joi).lock();
 		Serializable toReturn = null;
-		if (intercepInv){
-			listNeedInvalid.put(joi, W);
+		System.out.println("=> W " + this.cacheJvnObject.get(joi).getLock_state());
+		if (listIntercepInv.get(joi)){
+			//listNeedInvalid.put(joi, W);
+			System.out.println("*");
 			toReturn = this.cacheJvnObject.get(joi).jvnGetObjectState();
 		}
 		else
@@ -347,10 +385,27 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 **/
 	public Serializable jvnInvalidateWriterForReader(int joi) throws java.rmi.RemoteException,jvn.JvnException { 
 		lockLookUp.lock();
+
+		System.out.println("===> WRF ");
+		
+		synchronized (listBooleanInv.get(joi)) {			
+			if (listBooleanInv.get(joi))
+				try {
+					System.out.println("DODO WFR");
+					lockLookUp.unlock();
+					listBooleanInv.get(joi).wait();
+					lockLookUp.lock();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+		}
+
 		listLockObject.get(joi).lock();
 		Serializable toReturn = null;
-		if (intercepInv){
-			listNeedInvalid.put(joi, WFR);
+		System.out.println("=> WRF " + this.cacheJvnObject.get(joi).getLock_state());
+		if (listIntercepInv.get(joi)){
+			//listNeedInvalid.put(joi, WFR);
+			System.out.println("*");
 			toReturn = this.cacheJvnObject.get(joi).jvnGetObjectState();
 		}
 		else
@@ -360,13 +415,20 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 		return toReturn;
 	}
 
-	public void callBackInv (int joi) throws java.rmi.RemoteException,jvn.JvnException {
+	/*public void callBackInv (int joi) throws java.rmi.RemoteException,jvn.JvnException {
 		if (listNeedInvalid.containsKey(joi)){
 			switch (listNeedInvalid.remove(joi)){
 			case R : this.cacheJvnObject.get(joi).jvnInvalidateReader(); break;
 			case W : coordinator.jvnUpdate(joi, this.cacheJvnObject.get(joi).jvnInvalidateWriter()); break;
 			case WFR : coordinator.jvnUpdate(joi, this.cacheJvnObject.get(joi).jvnInvalidateWriterForReader()); break;
 			}
+		}
+	}*/
+
+	public void deIntercept(int joi) throws RemoteException, JvnException {		
+		synchronized (listBooleanInv.get(joi)) {
+			System.out.println("FIN INTERcep");
+			listBooleanInv.put(joi,true);
 		}
 	}
 }

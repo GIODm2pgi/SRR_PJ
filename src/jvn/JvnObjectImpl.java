@@ -1,7 +1,6 @@
 package jvn;
 
 import java.io.Serializable;
-import java.rmi.RemoteException;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -110,11 +109,11 @@ public class JvnObjectImpl implements JvnObject {
 			JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlockCondition().signal();
 			JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlock().unlock();
 			
-			try {
+			/*try {
 				JvnServerImpl.jvnGetServer().callBackInv(this.jvnObjectId);
 			} catch (RemoteException e) {
 				e.printStackTrace();
-			}
+			}*/
 		}
 	}
 
@@ -140,7 +139,7 @@ public class JvnObjectImpl implements JvnObject {
 		JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlock().lock();
 		try {
 			// Case Wait
-			while (lock_state == JvnLOCK_STATE.RLT){
+			while (lock_state == JvnLOCK_STATE.RLT || lock_state == JvnLOCK_STATE.RLT_WLC){
 				try {
 					// Wait
 					System.out.println("wait");

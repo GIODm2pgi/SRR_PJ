@@ -9,7 +9,6 @@ package jvn;
 
 import java.io.Serializable;
 import java.rmi.Remote;
-import java.rmi.RemoteException;
 
 
 /**
@@ -65,9 +64,7 @@ public interface JvnRemoteCoord extends Remote {
 	 * @param js  : the remote reference of the server
 	 * @throws java.rmi.RemoteException, JvnException
 	 **/
-	public void jvnTerminate(JvnRemoteServer js) throws java.rmi.RemoteException, JvnException;
-	
-	public void jvnUpdate (int joi, Serializable updated) throws RemoteException, JvnException;
+	public void jvnTerminate(JvnRemoteServer js) throws java.rmi.RemoteException, JvnException;	
 }
 
 
