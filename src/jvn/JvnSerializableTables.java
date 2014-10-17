@@ -113,10 +113,14 @@ public class JvnSerializableTables implements Serializable {
 					this.storeLockReadObject.put(i, new ArrayList<JvnRemoteServer>());
 
 				this.listServer = tables.listServer;
-			} catch (final java.io.IOException e) {
-				e.printStackTrace();
-			} catch (final ClassNotFoundException e) {
-				e.printStackTrace();
+			} catch (Exception e) {
+				System.out.println("The coordinator failed to restore the tables.");
+				this.storeJvnObject = new HashMap<Integer, JvnObject>() ;
+				this.nextStoreJvnObjectID = 0 ;
+				this.storeNameObject = new HashMap<String, Integer>() ;
+				this.storeLockWriteObject = new HashMap<Integer, JvnRemoteServer>() ;
+				this.storeLockReadObject = new HashMap<Integer, List<JvnRemoteServer>>() ;
+				this.listServer = new ArrayList<JvnRemoteServer>() ;
 			} finally {
 				try {
 					if (ois != null) {

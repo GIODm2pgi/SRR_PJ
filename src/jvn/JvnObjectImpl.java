@@ -142,7 +142,7 @@ public class JvnObjectImpl implements JvnObject {
 			while (lock_state == JvnLOCK_STATE.RLT || lock_state == JvnLOCK_STATE.RLT_WLC){
 				try {
 					// Wait
-					System.out.println("wait");
+					//System.out.println("wait");
 					JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlockCondition().await();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
@@ -168,7 +168,7 @@ public class JvnObjectImpl implements JvnObject {
 			while (lock_state == JvnLOCK_STATE.WLT || lock_state == JvnLOCK_STATE.RLT_WLC){
 				try {
 					// Wait
-					System.out.println("wait");
+					//System.out.println("wait");
 					JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlockCondition().await();
 				} catch (InterruptedException e) {
 					e.printStackTrace();
@@ -194,7 +194,7 @@ public class JvnObjectImpl implements JvnObject {
 			while (lock_state == JvnLOCK_STATE.WLT || lock_state == JvnLOCK_STATE.RLT_WLC){
 				try {
 					// Wait
-					System.out.println("wait");
+					//System.out.println("wait");
 					JvnServerImpl.jvnGetServer().getCacheJvnObject().get(this.jvnObjectId).getlockCondition().await();
 				} catch (InterruptedException e) {
 					e.printStackTrace();

@@ -44,6 +44,7 @@ public interface JvnRemoteServer extends Remote {
 	
 	public void deIntercept (int joi) throws java.rmi.RemoteException, jvn.JvnException;
 
+	
 }
 
 

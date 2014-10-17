@@ -16,8 +16,8 @@ public class StressTestJvnObjectIteration {
 	static Random randomGenerator = new Random();
 	static HashMap<String, JvnObject> mapObj = new HashMap<String, JvnObject>();
 
-	public static int nb_process = 10;
-	public static int nb_iteration = 1000;
+	public static int nb_process = 2;
+	public static int nb_iteration = 200;
 
 	static List<Integer> l = new ArrayList<Integer>();
 	static String alphabet = "A" + "BCDE" + "FGHIJKLMNOPQRSTUVWXYZ"  ;
@@ -96,11 +96,11 @@ public class StressTestJvnObjectIteration {
 		switch (1) {
 		case 0:
 			try {				
-				//System.out.println("READ START : ID " + jo.jvnGetObjectId());
+				System.out.println("READ START : ID " + jo.jvnGetObjectId());
 				jo.jvnLockRead();
-				//System.out.println("READ : ID " + jo.jvnGetObjectId()  + " : " +((IntegerForJvn)jo.jvnGetObjectState()).get());
+				System.out.println("READ : ID " + jo.jvnGetObjectId()  + " : " +((IntegerForJvn)jo.jvnGetObjectState()).get());
 				jo.jvnUnLock();
-				//System.out.println("READ END : ID " + jo.jvnGetObjectId());
+				System.out.println("READ END : ID " + jo.jvnGetObjectId());
 			} catch (JvnException e) {
 				e.printStackTrace();
 			}
@@ -110,11 +110,11 @@ public class StressTestJvnObjectIteration {
 		default :
 			if(!isFull(rang)){
 				try {
-					//System.out.println("WRITE START : ID " + jo.jvnGetObjectId());
+					System.out.println("WRITE START : ID " + jo.jvnGetObjectId());
 					jo.jvnLockWrite();
 					((IntegerForJvn)jo.jvnGetObjectState()).increment();
 					jo.jvnUnLock();
-					//System.out.println("WRITE END : ID " + jo.jvnGetObjectId());
+					System.out.println("WRITE END : ID " + jo.jvnGetObjectId());
 					l.set(rang, l.get(rang)+1);
 				} catch (JvnException e) {
 					e.printStackTrace();
@@ -126,13 +126,15 @@ public class StressTestJvnObjectIteration {
 
 	public static void main(String argv[]) {
 
+		try {
+			JvnServerImpl.jvnGetServer().jvnDesactivateRestoreObjets();
+		} catch (Exception e) {}
+		
 		init();
 
 		AttenteRunProcess sleeper1 = new AttenteRunProcess("sleeper1", nb_process);
 		sleeper1.setTimeToSleep(50);
 		sleeper1.synchronisationParAttente();
-
-		System.out.println(isEnd());
 
 		while(!isEnd()){
 			realizeAnInstruction(CreateOrGetObject());
@@ -151,14 +153,9 @@ public class StressTestJvnObjectIteration {
 		sleeper2.synchronisationParAttente();
 		 */
 
-		try {
-			Thread.sleep(4000);
-		} catch (NumberFormatException e) {
-			e.printStackTrace();
-		}
-		catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		AttenteRunProcess sleeper2 = new AttenteRunProcess("sleeper2", nb_process);
+		sleeper2.setTimeToSleep(50);
+		sleeper2.synchronisationParAttente();
 
 		for(int i = 0 ; i < alphabet.length() ; i++){
 			String name = alphabet.charAt(i) + "";
@@ -171,9 +168,17 @@ public class StressTestJvnObjectIteration {
 				else
 					System.err.println(nb_process*nb_iteration + " == " + ((IntegerForJvn)jo.jvnGetObjectState()).get());
 				jo.jvnUnLock();
+
 			} catch (JvnException e) {
 				e.printStackTrace();
 			}
-		}		
+		}	
+
+		try {
+			JvnServerImpl.jvnGetServer().jvnTerminate();
+			System.exit(0);
+		} catch (JvnException e) {
+			e.printStackTrace();
+		}
 	}
 }

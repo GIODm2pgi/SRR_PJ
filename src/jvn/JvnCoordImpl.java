@@ -8,6 +8,7 @@
 
 package jvn;
 
+import java.io.File;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -59,13 +60,14 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		}
 	}
 
+	private Boolean RESTORE = true;
+
 	/**
 	 * Default constructor : Instantiate all maps.
 	 * @throws JvnException
 	 */
 	private JvnCoordImpl() throws Exception {
-		//this.tables = new JvnSerializableTables(new File("savecoord.ser").exists());		
-		this.tables = new JvnSerializableTables(false);
+		this.tables = new JvnSerializableTables(new File("savecoord.ser").exists() && RESTORE);		
 	}
 
 	/**
@@ -89,9 +91,9 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 */
 	public void jvnRegisterObject(String jon, JvnObject jo, JvnRemoteServer js) throws java.rmi.RemoteException,jvn.JvnException {
 		lockLookUp.lock();
-		
+
 		Integer idJvnO = jo.jvnGetObjectId() ;
-		System.out.println("0 -> " + jon +" " +idJvnO);
+		//System.out.println("0 -> " + jon +" " +idJvnO);
 		// Check
 		if(this.tables.getStoreJvnObject().get(idJvnO) != null){
 			lockLookUp.unlock();
@@ -101,9 +103,9 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 			lockLookUp.unlock();
 			throw new JvnException("This symbolic name of object already exist. >" + jon + "<") ;
 		}
-		
-		
-		System.out.println("1 -> " + jon +" " +idJvnO);
+
+
+		//System.out.println("1 -> " + jon +" " +idJvnO);
 
 
 		// Treat
@@ -116,7 +118,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 
 		tables.saveCoordState();
 
-		System.out.println("fin reg");
+		//System.out.println("fin reg");
 		lockLookUp.unlock();
 	}
 
@@ -127,20 +129,18 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 * @throws java.rmi.RemoteException,JvnException
 	 */
 	public JvnObject jvnLookupObject(String jon, JvnRemoteServer js) throws java.rmi.RemoteException,jvn.JvnException{
-		lockLookUp.lock();
+		lockLookUp.lock();		
 
-		
-		
 		Integer joid = this.tables.getStoreNameObject().get(jon) ;
 		JvnObject toReturn = null;
-		
-		System.out.println("LK -> " + jon +" " +joid);
+
+		//System.out.println("LK -> " + jon +" " +joid);
 
 		// Treat a Write Lock.
 		if (this.tables.getStoreLockWriteObject().containsKey(joid)){
-			System.out.println("AV lookup");
+			//System.out.println("AV lookup");
 			Serializable updated = this.tables.getStoreLockWriteObject().get(joid).jvnInvalidateWriterForReader(joid);
-			System.out.println("AP lookup");
+			//System.out.println("AP lookup");
 			this.tables.getStoreJvnObject().get(joid).setObjectState(updated);
 			this.tables.getStoreLockReadObject().get(joid).add(this.tables.getStoreLockWriteObject().get(joid));
 			this.tables.getStoreLockWriteObject().remove(joid);
@@ -150,15 +150,15 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 
 		// Add Read Lock.
 		if (toReturn != null){
-			System.out.println("not null " + jon);
+			//System.out.println("not null " + jon);
 			this.tables.getStoreLockReadObject().get(joid).add(js);
 			this.tables.getListServer().add(js);
 		}
 
-		System.out.println("av save " + js.toString().split("endpoint")[1].split("\\(")[0]);
+		//System.out.println("av save " + js.toString().split("endpoint")[1].split("\\(")[0]);
 
 		tables.saveCoordState();
-		
+
 		lockLookUp.unlock();
 
 		return toReturn ;
@@ -192,7 +192,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 			this.tables.getStoreLockReadObject().get(joi).add(js);
 
 			js.deIntercept(joi);
-			
+
 			tables.saveCoordState();
 
 			lockLookUp.unlock();
@@ -213,7 +213,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 
 		synchronized (tables.getStoreJvnObject().get(joi)) {
 
-			System.out.println("JE FONCTIONNE !");
+			//System.out.println("JE FONCTIONNE !");
 
 			Serializable updated = null;
 
@@ -224,7 +224,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 
 			// Treat a Write Lock.
 			if (this.tables.getStoreLockWriteObject().containsKey(joi)){
-				System.out.println(this.tables.getStoreLockWriteObject().get(joi));
+				//System.out.println(this.tables.getStoreLockWriteObject().get(joi));
 				updated = this.tables.getStoreLockWriteObject().get(joi).jvnInvalidateWriter(joi);
 				this.tables.getStoreJvnObject().get(joi).setObjectState(updated);
 				//this.tables.getStoreLockWriteObject().remove(joi);
@@ -245,7 +245,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 			this.tables.getStoreLockWriteObject().put(joi, js);
 
 			js.deIntercept(joi);
-			
+
 			tables.saveCoordState();
 
 			lockLookUp.unlock();
@@ -316,11 +316,12 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		tables.saveCoordState();
 	}
 
-	public void jvnUpdate (int joi, Serializable updated) throws RemoteException, JvnException {
-		lockLookUp.lock();
-		synchronized (tables.getStoreJvnObject().get(joi)) {
-			this.tables.getStoreJvnObject().get(joi).setObjectState(updated);
+	public void jvnDesactivateRestoreObjects() throws RemoteException, JvnException {
+		if (RESTORE){
+			this.tables = new JvnSerializableTables(false);
+			System.out.println("RESTORE mode desactivate");
+			RESTORE=false;
 		}
-		lockLookUp.unlock();
+
 	}
 }
