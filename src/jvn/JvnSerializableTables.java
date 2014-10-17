@@ -44,8 +44,6 @@ public class JvnSerializableTables implements Serializable {
 	 * List of all server.
 	 */
 	private List<JvnRemoteServer> listServer = null;
-	private List<Lock> listServerLock = null;
-
 
 	private Boolean needWakeUp = false;
 
@@ -86,11 +84,7 @@ public class JvnSerializableTables implements Serializable {
 			return listServer;
 		}
 	}
-
-	public List<Lock> getListServerLock() {
-		return listServerLock;
-	}
-
+	
 	public JvnSerializableTables (Boolean ser){
 		if (!ser){
 			this.storeJvnObject = new HashMap<Integer, JvnObject>() ;
@@ -99,7 +93,6 @@ public class JvnSerializableTables implements Serializable {
 			this.storeLockWriteObject = new HashMap<Integer, JvnRemoteServer>() ;
 			this.storeLockReadObject = new HashMap<Integer, List<JvnRemoteServer>>() ;
 			this.listServer = new ArrayList<JvnRemoteServer>() ;
-			this.listServerLock = new ArrayList<Lock>();
 		}
 		else {
 			needWakeUp = true;
@@ -120,7 +113,6 @@ public class JvnSerializableTables implements Serializable {
 					this.storeLockReadObject.put(i, new ArrayList<JvnRemoteServer>());
 
 				this.listServer = tables.listServer;
-				this.listServerLock = tables.listServerLock;
 			} catch (final java.io.IOException e) {
 				e.printStackTrace();
 			} catch (final ClassNotFoundException e) {

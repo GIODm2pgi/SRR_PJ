@@ -65,7 +65,7 @@ public interface JvnLocalServer {
 	 **/
 	public  void jvnTerminate() throws jvn.JvnException;
 	
-	public void callBackInv (int joi) throws jvn.JvnException;
+	public void callBackInv (int joi) throws java.rmi.RemoteException,jvn.JvnException;
 
 }
 

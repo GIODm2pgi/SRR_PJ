@@ -9,7 +9,7 @@ package jvn;
 
 import java.io.Serializable;
 import java.rmi.Remote;
-import java.util.concurrent.locks.Lock;
+import java.rmi.RemoteException;
 
 
 /**
@@ -66,9 +66,8 @@ public interface JvnRemoteCoord extends Remote {
 	 * @throws java.rmi.RemoteException, JvnException
 	 **/
 	public void jvnTerminate(JvnRemoteServer js) throws java.rmi.RemoteException, JvnException;
-
-	public Lock jvnGetLock(int joi) throws java.rmi.RemoteException, JvnException;
 	
+	public void jvnUpdate (int joi, Serializable updated) throws RemoteException, JvnException;
 }
 
 

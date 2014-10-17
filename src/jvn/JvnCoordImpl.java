@@ -107,7 +107,6 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		this.tables.getStoreLockWriteObject().put(idJvnO, js);
 
 		this.tables.getListServer().add(js);
-		this.tables.getListServerLock().add(new ReentrantLock());
 
 		tables.saveCoordState();
 
@@ -143,7 +142,6 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		if (toReturn != null){
 			this.tables.getStoreLockReadObject().get(joid).add(js);
 			this.tables.getListServer().add(js);
-			this.tables.getListServerLock().add(new ReentrantLock());
 		}
 
 		System.out.println("av save " + js.toString().split("endpoint")[1].split("\\(")[0]);
@@ -302,8 +300,12 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 
 		tables.saveCoordState();
 	}
-
-	public Lock jvnGetLock(int joi) throws RemoteException, JvnException {
-		return null;
+	
+	public void jvnUpdate (int joi, Serializable updated) throws RemoteException, JvnException {
+		lockLookUp.lock();
+		synchronized (tables.getStoreJvnObject().get(joi)) {
+			this.tables.getStoreJvnObject().get(joi).setObjectState(updated);
+		}
+		lockLookUp.unlock();
 	}
 }

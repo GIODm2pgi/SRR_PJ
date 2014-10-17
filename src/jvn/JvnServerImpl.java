@@ -360,12 +360,12 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 		return toReturn;
 	}
 
-	public void callBackInv (int joi) throws jvn.JvnException { 
+	public void callBackInv (int joi) throws java.rmi.RemoteException,jvn.JvnException {
 		if (listNeedInvalid.containsKey(joi)){
 			switch (listNeedInvalid.remove(joi)){
 			case R : this.cacheJvnObject.get(joi).jvnInvalidateReader(); break;
-			case W : this.cacheJvnObject.get(joi).jvnInvalidateWriter(); break;
-			case WFR : this.cacheJvnObject.get(joi).jvnInvalidateWriterForReader(); break;
+			case W : coordinator.jvnUpdate(joi, this.cacheJvnObject.get(joi).jvnInvalidateWriter()); break;
+			case WFR : coordinator.jvnUpdate(joi, this.cacheJvnObject.get(joi).jvnInvalidateWriterForReader()); break;
 			}
 		}
 	}
