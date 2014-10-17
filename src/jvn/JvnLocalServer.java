@@ -63,7 +63,9 @@ public interface JvnLocalServer {
 	 * The JVN service is not used anymore by the application
 	 * @throws JvnException
 	 **/
-	public  void jvnTerminate() throws jvn.JvnException; 
+	public  void jvnTerminate() throws jvn.JvnException;
+	
+	public void callBackInv (int joi) throws jvn.JvnException;
 
 }
 

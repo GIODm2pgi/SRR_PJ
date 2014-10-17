@@ -15,12 +15,12 @@ public class StressTestJvnObjectRandom {
 	
 	public static JvnObject CreateOrGetObject(){
 		try {
-			String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" ;
+			String alphabet = "A" + "BCDE" /*+ "FGHIJKLMNOPQRSTUVWXYZ" */ ;
 			int random = Math.abs(randomGenerator.nextInt()) % alphabet.length();
 			String name = alphabet.substring(random, random+1) ;
 			// Test if exist :
 			if(mapObj.get(name) != null){
-				System.out.println("GET SERVER : " + mapObj.get(name).jvnGetObjectId()  + " : " + name);
+				//System.out.println("GET SERVER : " + mapObj.get(name).jvnGetObjectId()  + " : " + name);
 				return mapObj.get(name) ;
 			}
 			
@@ -33,11 +33,11 @@ public class StressTestJvnObjectRandom {
 				jo = js.jvnCreateObject((Serializable) new IntegerForJvn());
 				// after creation, I have a write lock on the object
 				jo.jvnUnLock();
-				System.out.println("CREATE : ID " + jo.jvnGetObjectId() + " : " + name);
+				//System.out.println("CREATE : ID " + jo.jvnGetObjectId() + " : " + name);
 				js.jvnRegisterObject(name, jo);
 			}
 			else{
-				System.out.println("GET COORD : ID " + jo.jvnGetObjectId() + " : " + name);
+				//System.out.println("GET COORD : ID " + jo.jvnGetObjectId() + " : " + name);
 			}
 			mapObj.put(name, jo);
 			return jo;
@@ -79,8 +79,18 @@ public class StressTestJvnObjectRandom {
 
 	public static void main(String argv[]) {
 
+		
+		
 		while(true){
 			realizeAnInstruction(CreateOrGetObject());
+			/*try {
+				Thread.sleep(200 + Math.abs(randomGenerator.nextInt(200)));
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
+			}
+			catch (InterruptedException e) {
+				e.printStackTrace();
+			}*/
 		}
 	}
 }

@@ -9,6 +9,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class JvnSerializableTables implements Serializable {
 	private static final long serialVersionUID = -7793153879732350544L;
@@ -16,37 +18,77 @@ public class JvnSerializableTables implements Serializable {
 	/**
 	 * The Map to store the objects.
 	 */
-	public HashMap<Integer, JvnObject> storeJvnObject = null ;
+	private HashMap<Integer, JvnObject> storeJvnObject = null ;
 
 	/**
 	 * The Map to store the symbolic names of the objects.
 	 */
-	public HashMap<String, Integer> storeNameObject = null ;
+	private HashMap<String, Integer> storeNameObject = null ;
 
 	/**
 	 * The Map to store the servers who lock in write the objects.
 	 */
-	public HashMap<Integer, JvnRemoteServer> storeLockWriteObject = null ;
+	private HashMap<Integer, JvnRemoteServer> storeLockWriteObject = null ;
 
 	/**
 	 * The Map to store the servers who lock in read the objects.
 	 */
-	public HashMap<Integer, List<JvnRemoteServer>> storeLockReadObject = null ;
+	private HashMap<Integer, List<JvnRemoteServer>> storeLockReadObject = null ;
 
 	/**
 	 * The next object id available.
 	 */
 	public int nextStoreJvnObjectID = 0 ;	
-	
+
 	/**
 	 * List of all server.
 	 */
-	public List<JvnRemoteServer> listServer = null;
-	
+	private List<JvnRemoteServer> listServer = null;
+	private List<Lock> listServerLock = null;
+
+
 	private Boolean needWakeUp = false;
-	
+
+	private Lock lockTables = new ReentrantLock();
+
 	public Boolean isNeedWakeUp() {
-		return needWakeUp;
+		synchronized (lockTables) {
+			return needWakeUp;
+		}
+	}
+
+	public HashMap<Integer, JvnObject> getStoreJvnObject() {
+		synchronized (lockTables) {
+			return storeJvnObject;
+		}
+	}
+
+	public HashMap<String, Integer> getStoreNameObject() {
+		synchronized (lockTables) {
+			return storeNameObject;
+		}
+	}
+
+	public HashMap<Integer, JvnRemoteServer> getStoreLockWriteObject() {
+		synchronized (lockTables) {
+			return storeLockWriteObject;
+		}
+	}
+
+	public HashMap<Integer, List<JvnRemoteServer>> getStoreLockReadObject() {
+		synchronized (lockTables) {
+			return storeLockReadObject;
+		}
+	}
+
+	public List<JvnRemoteServer> getListServer() {
+		synchronized (lockTables) {
+			return listServer;
+		}
+	}
+
+	public List<Lock> getListServerLock() {
+		return listServerLock;
 	}
 
 	public JvnSerializableTables (Boolean ser){
@@ -57,10 +99,11 @@ public class JvnSerializableTables implements Serializable {
 			this.storeLockWriteObject = new HashMap<Integer, JvnRemoteServer>() ;
 			this.storeLockReadObject = new HashMap<Integer, List<JvnRemoteServer>>() ;
 			this.listServer = new ArrayList<JvnRemoteServer>() ;
+			this.listServerLock = new ArrayList<Lock>();
 		}
 		else {
 			needWakeUp = true;
-			
+
 			ObjectInputStream ois = null;
 
 			try {
@@ -72,11 +115,12 @@ public class JvnSerializableTables implements Serializable {
 				this.storeNameObject = tables.storeNameObject ;
 				this.storeLockWriteObject = new HashMap<Integer, JvnRemoteServer>() ;
 				this.storeLockReadObject = new HashMap<Integer, List<JvnRemoteServer>>() ;
-				
+
 				for (Integer i : tables.storeJvnObject.keySet())
 					this.storeLockReadObject.put(i, new ArrayList<JvnRemoteServer>());
-									
+
 				this.listServer = tables.listServer;
+				this.listServerLock = tables.listServerLock;
 			} catch (final java.io.IOException e) {
 				e.printStackTrace();
 			} catch (final ClassNotFoundException e) {
@@ -94,23 +138,25 @@ public class JvnSerializableTables implements Serializable {
 	}
 
 	public synchronized void saveCoordState (){
-		ObjectOutputStream oos = null;
+		synchronized (lockTables) {
+			ObjectOutputStream oos = null;
 
-		try {
-			final FileOutputStream fichier = new FileOutputStream("savecoord.ser");
-			oos = new ObjectOutputStream(fichier);
-			oos.writeObject(this);
-			oos.flush();
-		} catch (final java.io.IOException e) {
-			e.printStackTrace();
-		} finally {
 			try {
-				if (oos != null) {
-					oos.flush();
-					oos.close();
+				final FileOutputStream fichier = new FileOutputStream("savecoord.ser");
+				oos = new ObjectOutputStream(fichier);
+				oos.writeObject(this);
+				oos.flush();
+			} catch (final java.io.IOException e) {
+				e.printStackTrace();
+			} finally {
+				try {
+					if (oos != null) {
+						oos.flush();
+						oos.close();
+					}
+				} catch (final IOException ex) {
+					ex.printStackTrace();
 				}
-			} catch (final IOException ex) {
-				ex.printStackTrace();
 			}
 		}
 	}

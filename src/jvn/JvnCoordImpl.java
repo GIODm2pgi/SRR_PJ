@@ -10,12 +10,17 @@ package jvn;
 
 import java.io.File;
 import java.io.Serializable;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * Realization of the coordinator.
@@ -28,6 +33,8 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	private static final long serialVersionUID = -353610607093461332L;
 
 	private JvnSerializableTables tables;
+
+	private Lock lockLookUp = new ReentrantLock();
 
 	/**
 	 * The main : runs the coordinator and treats
@@ -68,7 +75,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 *  newly created JVN object)
 	 * @throws java.rmi.RemoteException,JvnException
 	 */
-	public synchronized int jvnGetObjectId() throws java.rmi.RemoteException,jvn.JvnException {
+	public int jvnGetObjectId() throws java.rmi.RemoteException,jvn.JvnException {
 		int toReturn = this.tables.nextStoreJvnObjectID ;
 		this.tables.nextStoreJvnObjectID++ ;
 		return toReturn ;
@@ -82,26 +89,31 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 * @param js  : the remote reference of the JVNServer
 	 * @throws java.rmi.RemoteException,JvnException
 	 */
-	public synchronized void jvnRegisterObject(String jon, JvnObject jo, JvnRemoteServer js) throws java.rmi.RemoteException,jvn.JvnException {
+	public void jvnRegisterObject(String jon, JvnObject jo, JvnRemoteServer js) throws java.rmi.RemoteException,jvn.JvnException {
+		lockLookUp.lock();
+
 		Integer idJvnO = jo.jvnGetObjectId() ;
 
 		// Check
-		if(this.tables.storeJvnObject.get(idJvnO) != null){
+		if(this.tables.getStoreJvnObject().get(idJvnO) != null){
 			throw new JvnException("This id of object already exist.") ;
 		}
-		if(this.tables.storeNameObject.get(jon) != null){
+		if(this.tables.getStoreNameObject().get(jon) != null){
 			throw new JvnException("This symbolic name of object already exist.") ;
 		}
 
 		// Treat
-		this.tables.storeJvnObject.put(idJvnO, jo);
-		this.tables.storeNameObject.put(jon, idJvnO);
-		this.tables.storeLockReadObject.put(idJvnO, new ArrayList<JvnRemoteServer>());
-		this.tables.storeLockWriteObject.put(idJvnO, js);
+		this.tables.getStoreJvnObject().put(idJvnO, jo);
+		this.tables.getStoreNameObject().put(jon, idJvnO);
+		this.tables.getStoreLockReadObject().put(idJvnO, new ArrayList<JvnRemoteServer>());
+		this.tables.getStoreLockWriteObject().put(idJvnO, js);
 
-		this.tables.listServer.add(js);
-		
+		this.tables.getListServer().add(js);
+		this.tables.getListServerLock().add(new ReentrantLock());
+
 		tables.saveCoordState();
+
+		lockLookUp.unlock();
 	}
 
 	/**
@@ -110,26 +122,40 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 * @param js : the remote reference of the JVNServer
 	 * @throws java.rmi.RemoteException,JvnException
 	 */
-	public synchronized JvnObject jvnLookupObject(String jon, JvnRemoteServer js) throws java.rmi.RemoteException,jvn.JvnException{
-		Integer joid = this.tables.storeNameObject.get(jon) ;
+	public JvnObject jvnLookupObject(String jon, JvnRemoteServer js) throws java.rmi.RemoteException,jvn.JvnException{
+		System.out.println("AV LOCK LOOKUP " + jon);
+		lockLookUp.lock();
+		System.out.println("AP LOCK LOOKU P " );
+		
+		Integer joid = this.tables.getStoreNameObject().get(jon) ;
 		JvnObject toReturn = null;
 
 		// Treat a Write Lock.
-		if (this.tables.storeLockWriteObject.containsKey(joid)){
-			Serializable updated = this.tables.storeLockWriteObject.get(joid).jvnInvalidateWriterForReader(joid);
-			this.tables.storeJvnObject.get(joid).setObjectState(updated);
-			this.tables.storeLockReadObject.get(joid).add(this.tables.storeLockWriteObject.remove(joid));
+		if (this.tables.getStoreLockWriteObject().containsKey(joid)){
+			System.out.println("AV lookup");
+			Serializable updated = this.tables.getStoreLockWriteObject().get(joid).jvnInvalidateWriterForReader(joid);
+			System.out.println("AP lookup");
+			this.tables.getStoreJvnObject().get(joid).setObjectState(updated);
+			this.tables.getStoreLockReadObject().get(joid).add(this.tables.getStoreLockWriteObject().remove(joid));
 		}
 
-		toReturn = this.tables.storeJvnObject.get(joid) ;
+		toReturn = this.tables.getStoreJvnObject().get(joid) ;
 
 		// Add Read Lock.
 		if (toReturn != null){
-			this.tables.storeLockReadObject.get(joid).add(js);
-			this.tables.listServer.add(js);
+			this.tables.getStoreLockReadObject().get(joid).add(js);
+			this.tables.getListServer().add(js);
+			this.tables.getListServerLock().add(new ReentrantLock());
 		}
 
+		System.out.println("av save " + js.toString().split("endpoint")[1].split("\\(")[0]);
+		
 		tables.saveCoordState();
+
+		lockLookUp.unlock();
+
+		System.out.println("fin " + jon + js.toString().split("endpoint")[1].split("\\(")[0]);
+		
 		return toReturn ;
 	}
 
@@ -140,24 +166,31 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 * @return the current JVN object state
 	 * @throws java.rmi.RemoteException, JvnException
 	 */
-	public synchronized Serializable jvnLockRead(int joi, JvnRemoteServer js) throws java.rmi.RemoteException, JvnException{
-		Serializable updated = null;
+	public Serializable jvnLockRead(int joi, JvnRemoteServer js) throws java.rmi.RemoteException, JvnException{
+		lockLookUp.lock();
+		synchronized (tables.getStoreJvnObject().get(joi)) {
 
-		// Treat a Write Lock.
-		if (this.tables.storeLockWriteObject.containsKey(joi)){
-			updated = this.tables.storeLockWriteObject.get(joi).jvnInvalidateWriterForReader(joi);
-			this.tables.storeJvnObject.get(joi).setObjectState(updated);
-			this.tables.storeLockReadObject.get(joi).add(this.tables.storeLockWriteObject.remove(joi));
+			Serializable updated = null;
+
+			// Treat a Write Lock.
+			if (this.tables.getStoreLockWriteObject().containsKey(joi)){
+				updated = this.tables.getStoreLockWriteObject().get(joi).jvnInvalidateWriterForReader(joi);
+				this.tables.getStoreJvnObject().get(joi).setObjectState(updated);
+				this.tables.getStoreLockReadObject().get(joi).add(this.tables.getStoreLockWriteObject().remove(joi));
+			}
+			else{
+				updated = this.tables.getStoreJvnObject().get(joi).jvnGetObjectState();
+			}
+
+			// Add Read Lock.
+			this.tables.getStoreLockReadObject().get(joi).add(js);
+
+			tables.saveCoordState();
+
+			lockLookUp.unlock();
+
+			return updated;
 		}
-		else{
-			updated = this.tables.storeJvnObject.get(joi).jvnGetObjectState();
-		}
-
-		// Add Read Lock.
-		this.tables.storeLockReadObject.get(joi).add(js);
-
-		tables.saveCoordState();
-		return updated;
 	}
 
 	/**
@@ -167,37 +200,47 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 * @return the current JVN object state
 	 * @throws java.rmi.RemoteException, JvnException
 	 */
-	public synchronized Serializable jvnLockWrite(int joi, JvnRemoteServer js) throws java.rmi.RemoteException, JvnException{
-		Serializable updated = null;
+	public Serializable jvnLockWrite(int joi, JvnRemoteServer js) throws java.rmi.RemoteException, JvnException{
+		lockLookUp.lock();
 
-		// Check
-		if(this.tables.storeJvnObject.containsKey(joi) == false){
-			throw new JvnException("This id not exist.") ;
-		}
+		synchronized (tables.getStoreJvnObject().get(joi)) {
 
-		// Treat a Write Lock.
-		if (this.tables.storeLockWriteObject.containsKey(joi)){
-			updated = this.tables.storeLockWriteObject.get(joi).jvnInvalidateWriter(joi);
-			this.tables.storeJvnObject.get(joi).setObjectState(updated);
-			this.tables.storeLockWriteObject.remove(joi);
-		}
-		else{
-			updated = this.tables.storeJvnObject.get(joi).jvnGetObjectState();
-		}
+			System.out.println("JE FONCTIONNE !");
+			
+			Serializable updated = null;
 
-		// Treat Read Lock.
-		for (JvnRemoteServer s : this.tables.storeLockReadObject.get(joi)){
-			if (!s.equals(js)){
-				s.jvnInvalidateReader(joi);
+			// Check
+			if(this.tables.getStoreJvnObject().containsKey(joi) == false){
+				throw new JvnException("This id not exist.") ;
 			}
+
+			// Treat a Write Lock.
+			if (this.tables.getStoreLockWriteObject().containsKey(joi)){
+				updated = this.tables.getStoreLockWriteObject().get(joi).jvnInvalidateWriter(joi);
+				this.tables.getStoreJvnObject().get(joi).setObjectState(updated);
+				this.tables.getStoreLockWriteObject().remove(joi);
+			}
+			else{
+				updated = this.tables.getStoreJvnObject().get(joi).jvnGetObjectState();
+			}
+
+			// Treat Read Lock.
+			for (JvnRemoteServer s : this.tables.getStoreLockReadObject().get(joi)){
+				if (!s.equals(js)){
+					s.jvnInvalidateReader(joi);
+				}
+			}
+			this.tables.getStoreLockReadObject().put(joi, new ArrayList<JvnRemoteServer>());
+
+			// Add Write Lock.
+			this.tables.getStoreLockWriteObject().put(joi, js);
+
+			tables.saveCoordState();
+
+			lockLookUp.unlock();
+
+			return updated;
 		}
-		this.tables.storeLockReadObject.put(joi, new ArrayList<JvnRemoteServer>());
-
-		// Add Write Lock.
-		this.tables.storeLockWriteObject.put(joi, js);
-
-		tables.saveCoordState();
-		return updated;
 	}
 
 	/**
@@ -205,10 +248,12 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 * @param js  : the remote reference of the server
 	 * @throws java.rmi.RemoteException, JvnException
 	 */
-	public synchronized void jvnTerminate(JvnRemoteServer js) throws java.rmi.RemoteException, JvnException {
+	public void jvnTerminate(JvnRemoteServer js) throws java.rmi.RemoteException, JvnException {
+		lockLookUp.lock();
+
 		// Treat Write Lock.
 		List<Integer> tmp = new ArrayList<Integer>();
-		for(Entry<Integer, JvnRemoteServer> e : this.tables.storeLockWriteObject.entrySet()){
+		for(Entry<Integer, JvnRemoteServer> e : this.tables.getStoreLockWriteObject().entrySet()){
 			if(e.getValue().equals(js)){
 				tmp.add(e.getKey());
 			}
@@ -216,14 +261,14 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 
 		for(Integer todel : tmp){
 			Serializable updated = null;
-			updated = this.tables.storeLockWriteObject.get(todel).jvnInvalidateWriter(todel);
-			this.tables.storeJvnObject.get(todel).setObjectState(updated);
-			this.tables.storeLockWriteObject.remove(todel);
+			updated = this.tables.getStoreLockWriteObject().get(todel).jvnInvalidateWriter(todel);
+			this.tables.getStoreJvnObject().get(todel).setObjectState(updated);
+			this.tables.getStoreLockWriteObject().remove(todel);
 		}
 
 		// Treat Read Lock.
 		tmp = new ArrayList<Integer>();
-		for(Entry<Integer, List<JvnRemoteServer>> e : this.tables.storeLockReadObject.entrySet()){
+		for(Entry<Integer, List<JvnRemoteServer>> e : this.tables.getStoreLockReadObject().entrySet()){
 			for(JvnRemoteServer jsR : e.getValue()){
 				if(jsR.equals(js)){
 					tmp.add(e.getKey());
@@ -232,18 +277,20 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		}
 
 		for(Integer todel : tmp){
-			this.tables.storeLockReadObject.get(todel).remove(js) ;
+			this.tables.getStoreLockReadObject().get(todel).remove(js) ;
 		}
 
-		tables.listServer.remove(js);
+		tables.getListServer().remove(js);
 
 		tables.saveCoordState();
+
+		lockLookUp.unlock();
 	}
 
 	public void jvnWakeUpServers () throws java.rmi.RemoteException, jvn.JvnException {
 		List <JvnRemoteServer> toDelete = new ArrayList<JvnRemoteServer>();		
 		int i = 1;		
-		for (JvnRemoteServer js : tables.listServer)
+		for (JvnRemoteServer js : tables.getListServer())
 			try {
 				js.jvnWakeUpServer();
 			} catch (Exception e) {
@@ -252,9 +299,13 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 				toDelete.add(js);
 			}
 		for (JvnRemoteServer js : toDelete){
-			tables.listServer.remove(js);
+			tables.getListServer().remove(js);
 		}
 
 		tables.saveCoordState();
+	}
+
+	public Lock jvnGetLock(int joi) throws RemoteException, JvnException {
+		return null;
 	}
 }
