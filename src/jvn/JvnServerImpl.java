@@ -171,7 +171,8 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 			cacheJvnObject.put(jo.jvnGetObjectId(), jo);
 			listLockObject.put(jo.jvnGetObjectId(), new ReentrantLock());
 			lockLookUp.unlock();
-		} catch (RemoteException e) {
+		} catch (Exception e) {
+			System.out.println("HERE");
 			this.jvnLookupObject(jon);
 		}
 		/* Version avant tantative de debuggage du multiple register
