@@ -14,7 +14,6 @@ import java.io.*;
 /**
  * Remote interface of a JVN server (used by a remote JvnCoord)
  */
-
 public interface JvnRemoteServer extends Remote {
 
 	/**
@@ -40,11 +39,21 @@ public interface JvnRemoteServer extends Remote {
 	 **/
 	public Serializable jvnInvalidateWriterForReader (int joi) throws java.rmi.RemoteException, jvn.JvnException;
 	
+	/**
+	 * Wake up the server after a problem of the coordinator.
+	 * @throws Exception
+	 */
 	public void jvnWakeUpServer () throws Exception;
 	
+	/**
+	 * Notification of the coordinator about end
+	 * of intercept.
+	 * @param joi : l'id of the object.
+	 * @throws java.rmi.RemoteException
+	 * @throws jvn.JvnException
+	 */
 	public void deIntercept (int joi) throws java.rmi.RemoteException, jvn.JvnException;
 
-	
 }
 
 

@@ -14,6 +14,9 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+/**
+ * Class to stock data of the coordinator.
+ */
 public class JvnSerializableTables implements Serializable {
 	private static final long serialVersionUID = -7793153879732350544L;
 
@@ -47,46 +50,80 @@ public class JvnSerializableTables implements Serializable {
 	 */
 	private List<JvnRemoteServer> listServer = null;
 
+	/**
+	 * If we need wake up.
+	 */
 	private Boolean needWakeUp = false;
 
+	/**
+	 * To lock the tables.
+	 */
 	private Lock lockTables = new ReentrantLock();
 
+	/**
+	 * Know if we need wake up.
+	 * @return if we need wake up.
+	 */
 	public Boolean isNeedWakeUp() {
 		synchronized (lockTables) {
 			return needWakeUp;
 		}
 	}
 
+	/**
+	 * Get the store of object.
+	 * @return the store of object.
+	 */
 	public HashMap<Integer, JvnObject> getStoreJvnObject() {
 		synchronized (lockTables) {
 			return storeJvnObject;
 		}
 	}
 
+	/**
+	 * Get the store of symbolic name.
+	 * @return the store of symbolic name.
+	 */
 	public HashMap<String, Integer> getStoreNameObject() {
 		synchronized (lockTables) {
 			return storeNameObject;
 		}
 	}
 
+	/**
+	 * Get the store of lock in write.
+	 * @return the store of lock in write.
+	 */
 	public HashMap<Integer, JvnRemoteServer> getStoreLockWriteObject() {
 		synchronized (lockTables) {
 			return storeLockWriteObject;
 		}
 	}
 
+	/**
+	 * Get the store of lock in read.
+	 * @return the store of lock in read.
+	 */
 	public HashMap<Integer, List<JvnRemoteServer>> getStoreLockReadObject() {
 		synchronized (lockTables) {
 			return storeLockReadObject;
 		}
 	}
 
+	/**
+	 * Get the store of servers.
+	 * @return the store of servers.
+	 */
 	public List<JvnRemoteServer> getListServer() {
 		synchronized (lockTables) {
 			return listServer;
 		}
 	}
 
+	/**
+	 * Create the tables or import the tables.
+	 * @param ser : true if the files exist, else false.
+	 */
 	public JvnSerializableTables (Boolean ser){
 		if (!ser){
 			this.storeJvnObject = new HashMap<Integer, JvnObject>() ;
@@ -103,6 +140,11 @@ public class JvnSerializableTables implements Serializable {
 		}
 	}
 
+	/**
+	 * Load the tables from a file.
+	 * @param name : the file.
+	 * @return
+	 */
 	private Boolean load (String name){
 		ObjectInputStream ois = null;
 		try {
@@ -154,9 +196,12 @@ public class JvnSerializableTables implements Serializable {
 		return false;
 	}
 
+	/**
+	 * Save the tables in the files.
+	 */
 	public synchronized void saveCoordState (){
 		synchronized (lockTables) {
-			
+
 			copier(new File("save/savecoord.ser"),new File("save/savecoord_backup.ser"));
 
 			ObjectOutputStream oos = null;
@@ -210,4 +255,5 @@ public class JvnSerializableTables implements Serializable {
 		}  
 		return( resultat );
 	} 
+
 }

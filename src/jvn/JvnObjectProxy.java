@@ -40,6 +40,9 @@ public class JvnObjectProxy implements InvocationHandler {
 		this.jvnObject = obj ;
 	}
 
+	/**
+	 * Tools for transactions.
+	 */
 	private Serializable saveState = null;
 	private Serializable currentState = null;
 	private Boolean autoCommit = true;
@@ -215,4 +218,5 @@ public class JvnObjectProxy implements InvocationHandler {
 
 		return copy;
 	}
+	
 }
