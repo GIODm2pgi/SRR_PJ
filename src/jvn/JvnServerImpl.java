@@ -113,8 +113,9 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 			try {
 				js = new JvnServerImpl();
 			} catch (Exception e) {
-				System.err.println("Breakdown of the coordinator");
-				return null;
+				System.err.println("Breakdown of the coordinator (next check in 5s)");
+				try {Thread.sleep(5000);} catch (InterruptedException e1) {}
+				return jvnGetServer();
 			}
 		}
 		return js;
@@ -124,11 +125,12 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 * The JVN service is not used anymore
 	 * @throws JvnException
 	 **/
-	public  void jvnTerminate() throws jvn.JvnException {
+	public void jvnTerminate() throws jvn.JvnException {
 		try {
 			this.getCoordinator().jvnTerminate(this);
 		} catch (RemoteException e) {
 			breakdown();
+			jvnTerminate();
 			//e.printStackTrace();
 		}
 	} 
@@ -138,7 +140,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	 * @param o : the JVN object state
 	 * @throws JvnException
 	 **/
-	public  JvnObject jvnCreateObject(Serializable o) throws jvn.JvnException { 
+	public JvnObject jvnCreateObject(Serializable o) throws jvn.JvnException { 
 		lockLookUp.lock();
 		int jvnObjectId = 0;
 
@@ -146,6 +148,8 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 			jvnObjectId = this.getCoordinator().jvnGetObjectId();
 		} catch (RemoteException e) {
 			breakdown();
+			lockLookUp.unlock();
+			return jvnCreateObject(o);
 		}
 
 		JvnObject toReturn = new JvnObjectImpl(jvnObjectId, o);
@@ -170,12 +174,9 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 			listBooleanInv.put(jo.jvnGetObjectId(), false);
 			listIntercepInv.put(jo.jvnGetObjectId(), false);
 			lockLookUp.unlock();
-		/*} catch (JvnException e) {
-			System.out.println("--- >lookup ");
-			this.jvnLookupObject(jon);*/
 		} catch (RemoteException e) {
-			//e.printStackTrace();
 			breakdown();
+			jvnRegisterObject(jon, jo);
 		}
 	}
 
@@ -188,13 +189,10 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	public  JvnObject jvnLookupObject(String jon) throws jvn.JvnException {
 		JvnObject toReturn = null ;
 		try {
-			//System.out.println("LOOCK UP " + jon + js.toString().split("endpoint")[1].split("\\(")[0]);
 			toReturn = this.getCoordinator().jvnLookupObject(jon, this);
-			//System.out.println("AP");
 		} catch (RemoteException e) {
 			breakdown();
-			//e.printStackTrace();
-			return toReturn;
+			return jvnLookupObject(jon);
 		}
 		lockLookUp.lock();
 
@@ -237,7 +235,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 				toReturn = this.getCoordinator().jvnLockRead(joi, this);
 			} catch (RemoteException e) {
 				breakdown();
-				return cacheJvnObject.get(joi).jvnGetObjectState();
+				return jvnLockRead(joi);
 			}
 			listLockObject.get(joi).lock();
 			listIntercepInv.put(joi,false);
@@ -284,7 +282,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 				//System.out.println("ZUBI");
 			} catch (RemoteException e) {
 				breakdown();
-				return cacheJvnObject.get(joi).jvnGetObjectState();
+				return jvnLockWrite(joi);
 			}
 			//System.out.println("ZUBI!!!");
 			listLockObject.get(joi).lock();
@@ -434,7 +432,12 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 	}
 
 	public void jvnDesactivateRestoreObjets() throws RemoteException, JvnException {
-		this.coordinator.jvnDesactivateRestoreObjects();		
+		try{
+			this.coordinator.jvnDesactivateRestoreObjects();		
+		} catch (RemoteException e){
+			breakdown();
+			jvnDesactivateRestoreObjets();
+		}
 	}
 	
 	private synchronized void breakdown (){

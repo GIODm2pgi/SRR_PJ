@@ -1,6 +1,9 @@
 package jvn;
 
+import java.io.EOFException;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -84,7 +87,7 @@ public class JvnSerializableTables implements Serializable {
 			return listServer;
 		}
 	}
-	
+
 	public JvnSerializableTables (Boolean ser){
 		if (!ser){
 			this.storeJvnObject = new HashMap<Integer, JvnObject>() ;
@@ -96,45 +99,62 @@ public class JvnSerializableTables implements Serializable {
 		}
 		else {
 			needWakeUp = true;
+			if (load("savecoord.ser"))
+				load("savecoord_backup.ser");			
+		}
+	}
 
-			ObjectInputStream ois = null;
+	private Boolean load (String name){
+		ObjectInputStream ois = null;
+		try {
+			final FileInputStream fichier = new FileInputStream(name);
+			ois = new ObjectInputStream(fichier);
+			final JvnSerializableTables tables = (JvnSerializableTables) ois.readObject();
+			this.storeJvnObject = tables.storeJvnObject;
+			this.nextStoreJvnObjectID = tables.nextStoreJvnObjectID ;
+			this.storeNameObject = tables.storeNameObject ;
+			this.storeLockWriteObject = new HashMap<Integer, JvnRemoteServer>() ;
+			this.storeLockReadObject = new HashMap<Integer, List<JvnRemoteServer>>() ;
 
-			try {
-				final FileInputStream fichier = new FileInputStream("savecoord.ser");
-				ois = new ObjectInputStream(fichier);
-				final JvnSerializableTables tables = (JvnSerializableTables) ois.readObject();
-				this.storeJvnObject = tables.storeJvnObject;
-				this.nextStoreJvnObjectID = tables.nextStoreJvnObjectID ;
-				this.storeNameObject = tables.storeNameObject ;
-				this.storeLockWriteObject = new HashMap<Integer, JvnRemoteServer>() ;
-				this.storeLockReadObject = new HashMap<Integer, List<JvnRemoteServer>>() ;
+			for (Integer i : tables.storeJvnObject.keySet())
+				this.storeLockReadObject.put(i, new ArrayList<JvnRemoteServer>());
 
-				for (Integer i : tables.storeJvnObject.keySet())
-					this.storeLockReadObject.put(i, new ArrayList<JvnRemoteServer>());
-
-				this.listServer = tables.listServer;
-			} catch (Exception e) {
+			this.listServer = tables.listServer;
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			if (e instanceof EOFException && name.compareTo("savecoord.ser") == 0)
+				return true;
+			else if (name.compareTo("savecoord_backup.ser") == 0){
 				System.out.println("The coordinator failed to restore the tables.");
 				this.storeJvnObject = new HashMap<Integer, JvnObject>() ;
 				this.nextStoreJvnObjectID = 0 ;
 				this.storeNameObject = new HashMap<String, Integer>() ;
 				this.storeLockWriteObject = new HashMap<Integer, JvnRemoteServer>() ;
 				this.storeLockReadObject = new HashMap<Integer, List<JvnRemoteServer>>() ;
-				this.listServer = new ArrayList<JvnRemoteServer>() ;
-			} finally {
-				try {
-					if (ois != null) {
-						ois.close();
-					}
-				} catch (final IOException ex) {
-					ex.printStackTrace();
+			}
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		}
+		finally {
+			try {
+				if (ois != null) {
+					ois.close();
 				}
+			} catch (final IOException ex) {
+				ex.printStackTrace();
 			}
 		}
+		return false;
 	}
 
 	public synchronized void saveCoordState (){
 		synchronized (lockTables) {
+
+			File f = new File("savecoord.ser");
+			if (f.exists())
+				copier(f,new File("savecoord_backup.ser"));
+
 			ObjectOutputStream oos = null;
 
 			try {
@@ -156,4 +176,34 @@ public class JvnSerializableTables implements Serializable {
 			}
 		}
 	}
+
+	// http://forum.hardware.fr/hfr/Programmation/Java/copier-coller-java-sujet_68491_1.htm
+	public boolean copier( File source, File destination ){
+		boolean resultat = false;
+
+		java.io.FileInputStream sourceFile=null;
+		java.io.FileOutputStream destinationFile=null;
+		try {
+			destination.createNewFile();
+			sourceFile = new java.io.FileInputStream(source);
+			destinationFile = new java.io.FileOutputStream(destination);
+			byte buffer[]=new byte[512*1024];
+			int nbLecture;
+			while( (nbLecture = sourceFile.read(buffer)) != -1 ) {
+				destinationFile.write(buffer, 0, nbLecture);
+			}  
+
+			resultat = true;
+		} catch( java.io.FileNotFoundException f ) {
+		} catch( java.io.IOException e ) {
+		} finally {
+			try {
+				sourceFile.close();
+			} catch(Exception e) { }
+			try {
+				destinationFile.close();
+			} catch(Exception e) { }
+		}  
+		return( resultat );
+	} 
 }

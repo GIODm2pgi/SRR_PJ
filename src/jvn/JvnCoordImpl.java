@@ -299,6 +299,8 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	}
 
 	public void jvnWakeUpServers () throws java.rmi.RemoteException, jvn.JvnException {
+		lockLookUp.lock();
+		
 		List <JvnRemoteServer> toDelete = new ArrayList<JvnRemoteServer>();		
 		int i = 1;		
 		for (JvnRemoteServer js : tables.getListServer())
@@ -314,14 +316,15 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		}
 
 		tables.saveCoordState();
+		
+		lockLookUp.unlock();
 	}
-
+	
 	public void jvnDesactivateRestoreObjects() throws RemoteException, JvnException {
 		if (RESTORE){
 			this.tables = new JvnSerializableTables(false);
 			System.out.println("RESTORE mode desactivate");
 			RESTORE=false;
 		}
-
 	}
 }
