@@ -126,10 +126,6 @@ public class StressTestJvnObjectIteration {
 
 	public static void main(String argv[]) {
 
-		try {
-			JvnServerImpl.jvnGetServer().jvnDesactivateRestoreObjets();
-		} catch (Exception e) {}
-		
 		init();
 
 		AttenteRunProcess sleeper1 = new AttenteRunProcess("sleeper1", nb_process);

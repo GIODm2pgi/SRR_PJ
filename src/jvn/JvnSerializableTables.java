@@ -3,7 +3,6 @@ package jvn;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -120,8 +119,6 @@ public class JvnSerializableTables implements Serializable {
 				this.storeLockReadObject.put(i, new ArrayList<JvnRemoteServer>());
 
 			this.listServer = tables.listServer;
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
 		} catch (IOException e) {
 			if (e instanceof EOFException && name.compareTo("savecoord.ser") == 0)
 				return true;
@@ -132,9 +129,18 @@ public class JvnSerializableTables implements Serializable {
 				this.storeNameObject = new HashMap<String, Integer>() ;
 				this.storeLockWriteObject = new HashMap<Integer, JvnRemoteServer>() ;
 				this.storeLockReadObject = new HashMap<Integer, List<JvnRemoteServer>>() ;
+				this.listServer = new ArrayList<JvnRemoteServer>() ;
+				needWakeUp = false;
 			}
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			System.out.println("The coordinator failed to restore the tables.");
+			this.storeJvnObject = new HashMap<Integer, JvnObject>() ;
+			this.nextStoreJvnObjectID = 0 ;
+			this.storeNameObject = new HashMap<String, Integer>() ;
+			this.storeLockWriteObject = new HashMap<Integer, JvnRemoteServer>() ;
+			this.storeLockReadObject = new HashMap<Integer, List<JvnRemoteServer>>() ;
+			this.listServer = new ArrayList<JvnRemoteServer>() ;
+			needWakeUp = false;
 		}
 		finally {
 			try {
@@ -151,9 +157,9 @@ public class JvnSerializableTables implements Serializable {
 	public synchronized void saveCoordState (){
 		synchronized (lockTables) {
 
-			File f = new File("save/savecoord.ser");
-			if (f.exists())
-				copier(f,new File("save/savecoord_backup.ser"));
+			System.out.println("WRITE");
+			
+			copier(new File("save/savecoord.ser"),new File("save/savecoord_backup.ser"));
 
 			ObjectOutputStream oos = null;
 

@@ -65,8 +65,6 @@ public interface JvnLocalServer {
 	 **/
 	public  void jvnTerminate() throws jvn.JvnException;
 	
-	public void jvnDesactivateRestoreObjets () throws java.rmi.RemoteException, JvnException;
-
 }
 
 

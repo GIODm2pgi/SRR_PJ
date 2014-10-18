@@ -8,9 +8,7 @@
 
 package jvn;
 
-import java.io.File;
 import java.io.Serializable;
-import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -60,15 +58,22 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 			e.printStackTrace();
 		}
 	}
+	
+	public static void start (Boolean restore){
+		RESTORE = restore;
+		if (!restore)
+			System.out.println("RESTORE mode desactivate");
+		main(null);
+	}
 
-	private Boolean RESTORE = true;
-
+	public static Boolean RESTORE = true;
+	
 	/**
 	 * Default constructor : Instantiate all maps.
 	 * @throws JvnException
 	 */
 	private JvnCoordImpl() throws Exception {
-		this.tables = new JvnSerializableTables(new File("save/savecoord.ser").exists());		
+		this.tables = new JvnSerializableTables(RESTORE);	
 	}
 
 	/**
@@ -319,13 +324,5 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 		tables.saveCoordState();
 		
 		lockLookUp.unlock();
-	}
-	
-	public void jvnDesactivateRestoreObjects() throws RemoteException, JvnException {
-		if (RESTORE){
-			this.tables = new JvnSerializableTables(false);
-			System.out.println("RESTORE mode desactivate");
-			RESTORE=false;
-		}
 	}
 }
