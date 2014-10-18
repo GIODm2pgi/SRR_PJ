@@ -156,8 +156,6 @@ public class JvnSerializableTables implements Serializable {
 
 	public synchronized void saveCoordState (){
 		synchronized (lockTables) {
-
-			System.out.println("WRITE");
 			
 			copier(new File("save/savecoord.ser"),new File("save/savecoord_backup.ser"));
 
