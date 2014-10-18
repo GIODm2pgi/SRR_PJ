@@ -107,7 +107,7 @@ public class JvnSerializableTables implements Serializable {
 	private Boolean load (String name){
 		ObjectInputStream ois = null;
 		try {
-			final FileInputStream fichier = new FileInputStream(name);
+			final FileInputStream fichier = new FileInputStream("save/"+name);
 			ois = new ObjectInputStream(fichier);
 			final JvnSerializableTables tables = (JvnSerializableTables) ois.readObject();
 			this.storeJvnObject = tables.storeJvnObject;
@@ -151,14 +151,14 @@ public class JvnSerializableTables implements Serializable {
 	public synchronized void saveCoordState (){
 		synchronized (lockTables) {
 
-			File f = new File("savecoord.ser");
+			File f = new File("save/savecoord.ser");
 			if (f.exists())
-				copier(f,new File("savecoord_backup.ser"));
+				copier(f,new File("save/savecoord_backup.ser"));
 
 			ObjectOutputStream oos = null;
 
 			try {
-				final FileOutputStream fichier = new FileOutputStream("savecoord.ser");
+				final FileOutputStream fichier = new FileOutputStream("save/savecoord.ser");
 				oos = new ObjectOutputStream(fichier);
 				oos.writeObject(this);
 				oos.flush();

@@ -40,6 +40,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
 		// Treat security.
 		System.setProperty("java.security.policy","file:./java.policy");
 		if (System.getSecurityManager() == null) { 
@@ -67,7 +68,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 	 * @throws JvnException
 	 */
 	private JvnCoordImpl() throws Exception {
-		this.tables = new JvnSerializableTables(new File("savecoord.ser").exists() && RESTORE);		
+		this.tables = new JvnSerializableTables(new File("save/savecoord.ser").exists());		
 	}
 
 	/**
