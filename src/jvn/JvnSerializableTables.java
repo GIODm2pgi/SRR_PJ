@@ -163,7 +163,7 @@ public class JvnSerializableTables implements Serializable {
 				this.storeLockReadObject.put(i, new ArrayList<JvnRemoteServer>());
 
 			this.listServer = tables.listServer;
-			System.out.println("The coordinator failed to jljljlrggggstore the tables.");
+			System.out.println("The coordinator failed to restore the tables.");
 		} catch (FileNotFoundException e0){
 			System.out.println("The coordinator failed to restore the tables.");
 			this.storeJvnObject = new HashMap<Integer, JvnObject>() ;
@@ -175,7 +175,7 @@ public class JvnSerializableTables implements Serializable {
 			needWakeUp = false;
 		} catch (IOException e) {
 			if (e instanceof EOFException && name.compareTo("savecoord.ser") == 0){
-				System.out.println("The coordinator failed to rggggstore the tables.");
+				System.out.println("The coordinator failed to restore the tables.");
 				return true;
 			}
 			else if (name.compareTo("savecoord_backup.ser") == 0){

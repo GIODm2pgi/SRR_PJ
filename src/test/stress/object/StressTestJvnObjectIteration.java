@@ -16,11 +16,11 @@ public class StressTestJvnObjectIteration {
 	static Random randomGenerator = new Random();
 	static HashMap<String, JvnObject> mapObj = new HashMap<String, JvnObject>();
 
-	public static int nb_process = 2;
-	public static int nb_iteration = 200;
+	public static int nb_process = 4;
+	public static int nb_iteration = 300;
 
 	static List<Integer> l = new ArrayList<Integer>();
-	static String alphabet = "A" + "BCDE" + "FGHIJKLMNOPQRSTUVWXYZ"  ;
+	static String alphabet = "A" + "BCDE" /*+ "FGHIJKLMNOPQRSTUVWXYZ"*/  ;
 
 	public static void init (){
 		for (int i = 0; i < alphabet.length();i++){
