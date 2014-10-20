@@ -134,20 +134,7 @@ public class StressTestJvnObjectIteration {
 
 		while(!isEnd()){
 			realizeAnInstruction(CreateOrGetObject());
-			/*try {
-				Thread.sleep(200 + Math.abs(randomGenerator.nextInt(200)));
-			} catch (NumberFormatException e) {
-				e.printStackTrace();
-			}
-			catch (InterruptedException e) {
-				e.printStackTrace();
-			}*/
 		}
-
-		/*AttenteRunProcess sleeper2 = new AttenteRunProcess("sleeper2", nb_process);
-		sleeper2.setTimeToSleep(50);
-		sleeper2.synchronisationParAttente();
-		 */
 
 		AttenteRunProcess sleeper2 = new AttenteRunProcess("sleeper2", nb_process);
 		sleeper2.setTimeToSleep(50);

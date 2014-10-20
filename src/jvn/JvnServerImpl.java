@@ -142,7 +142,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 		try {
 			this.getCoordinator().jvnTerminate(this);
 		} catch (RemoteException e) {
-			e.printStackTrace(); breakdown();
+			breakdown();
 			jvnTerminate();
 		}
 	} 
@@ -161,7 +161,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 		try {
 			jvnObjectId = this.getCoordinator().jvnGetObjectId();
 		} catch (RemoteException e) {
-			e.printStackTrace(); breakdown();
+			breakdown();
 			// Unlock.
 			lockLookUp.unlock();
 			return jvnCreateObject(o);
@@ -203,7 +203,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 			// Unlock.
 			lockLookUp.unlock();
 		} catch (RemoteException e) {
-			e.printStackTrace(); breakdown();
+			breakdown();
 			jvnRegisterObject(jon, jo);
 		}
 	}
@@ -222,7 +222,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 			toReturn = this.getCoordinator().jvnLookupObject(jon, this);
 		} catch (RemoteException e) {
 			e.printStackTrace();
-			e.printStackTrace(); breakdown();
+			breakdown();
 			return jvnLookupObject(jon);
 		}
 		// Lock.
@@ -270,7 +270,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 			try {
 				toReturn = this.getCoordinator().jvnLockRead(joi, this);
 			} catch (RemoteException e) {
-				e.printStackTrace(); breakdown();
+				breakdown();
 				return jvnLockRead(joi);
 			}
 			// Lock.
@@ -313,7 +313,7 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 			try {
 				toReturn = this.getCoordinator().jvnLockWrite(joi, this);
 			} catch (RemoteException e) {
-				e.printStackTrace(); breakdown();
+				breakdown();
 				return jvnLockWrite(joi);
 			}
 			// Lock.
@@ -468,7 +468,6 @@ public class JvnServerImpl extends UnicastRemoteObject implements JvnLocalServer
 			e.printStackTrace();
 		}
 	}
-
 }
 
 
