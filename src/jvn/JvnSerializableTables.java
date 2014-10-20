@@ -3,6 +3,7 @@ package jvn;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -135,8 +136,9 @@ public class JvnSerializableTables implements Serializable {
 		}
 		else {
 			needWakeUp = true;
-			if (load("savecoord.ser"))
-				load("savecoord_backup.ser");			
+			if (load("savecoord.ser")){
+				load("savecoord_backup.ser");	
+			}
 		}
 	}
 
@@ -161,9 +163,21 @@ public class JvnSerializableTables implements Serializable {
 				this.storeLockReadObject.put(i, new ArrayList<JvnRemoteServer>());
 
 			this.listServer = tables.listServer;
+			System.out.println("The coordinator failed to jljljlrggggstore the tables.");
+		} catch (FileNotFoundException e0){
+			System.out.println("The coordinator failed to restore the tables.");
+			this.storeJvnObject = new HashMap<Integer, JvnObject>() ;
+			this.nextStoreJvnObjectID = 0 ;
+			this.storeNameObject = new HashMap<String, Integer>() ;
+			this.storeLockWriteObject = new HashMap<Integer, JvnRemoteServer>() ;
+			this.storeLockReadObject = new HashMap<Integer, List<JvnRemoteServer>>() ;
+			this.listServer = new ArrayList<JvnRemoteServer>() ;
+			needWakeUp = false;
 		} catch (IOException e) {
-			if (e instanceof EOFException && name.compareTo("savecoord.ser") == 0)
+			if (e instanceof EOFException && name.compareTo("savecoord.ser") == 0){
+				System.out.println("The coordinator failed to rggggstore the tables.");
 				return true;
+			}
 			else if (name.compareTo("savecoord_backup.ser") == 0){
 				System.out.println("The coordinator failed to restore the tables.");
 				this.storeJvnObject = new HashMap<Integer, JvnObject>() ;
