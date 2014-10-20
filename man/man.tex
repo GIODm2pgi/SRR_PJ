@@ -55,7 +55,7 @@ The authors are \textbf{Johan GIRARD} and \textbf{Pierre ODIN}.
 
 \section{Add JAVANAISE in a Project}
 
-To use JAVANAISE, the first thing to do is to add the librairy and several elements to the Project :
+To use JAVANAISE, add the librairy and several elements to the Project :
 \begin{itemize}
 \item Add \texttt{JAVANAISE.jar} to the \textit{Build Path} of the Project.
 \item Create a \texttt{save/} directory at the root of the Project.
@@ -71,7 +71,7 @@ To use JAVANAISE, the first thing to do is to add the librairy and several eleme
 
 \section{Run the coordinator}
 
-Next, create the class \texttt{RunCoordinator}. This class will be use to start and configure the coordinator : \\
+Next, create a class named \texttt{RunCoordinator}. This class is used to start and to configure the coordinator : \\
 
 \noindent
 \begin{verbatim}
@@ -85,7 +85,7 @@ Next, create the class \texttt{RunCoordinator}. This class will be use to start 
 \end{verbatim}
 \vspace{0.3cm}
 
-\noindent The \texttt{start(...)} method take a boolean as input :
+\noindent The \texttt{start(...)} method takes a boolean in argument :
 
 \begin{itemize}
 \item \texttt{TRUE} $\rightarrow$ The coordinator will restore his old tables (list of objects, servers, locks, ...) when starting.
@@ -98,7 +98,7 @@ The creation of an object requires 3 steps. Note that the number of different ob
 
 \subsection{Interface}
 
-Start by create an \texttt{Interface} extanding \texttt{JvnTransactionObject}. This Interface will contain the definition of all the methods of the object. Each of these methods has to be annotate with \texttt{@JvnWriteMethod} if it's a method which can change the state of the object or \texttt{@JvnReadMethod} in the other case. \\
+Start by create an \texttt{Interface} extanding \texttt{JvnTransactionObject}. This Interface contains the definition of all the methods of the object. Each of these methods has to be annotate with \texttt{@JvnWriteMethod} if it's a method which can change the state of the object or with \texttt{@JvnReadMethod} in the other case. \\
 
 \noindent
 \begin{verbatim}
@@ -119,7 +119,7 @@ Start by create an \texttt{Interface} extanding \texttt{JvnTransactionObject}. T
 
 \subsection{Class}
 
-Create a class extanding \texttt{JvnTransactionObjectAbstract} and implementing the previous interface. This class will provide the implementation of all the methods of the object. \\
+Create a class extanding \texttt{JvnTransactionObjectAbstract} and implementing the previous interface. This class provides the implementation of all the methods of the object. \\
 
 \noindent
 \begin{verbatim}
@@ -150,7 +150,7 @@ Finally, instanciate the object with the following code : \\
 
 \section{Use an Object in a client application}
 
-After the instanciation, the object is ready to use. Every methods define in the interface can be called. \\
+After the instanciation, the object is ready to be used. Every methods defined on the interface can be called. \\
 
 \noindent
 \begin{verbatim}
@@ -171,7 +171,7 @@ At the end of the execution of the application, the coordinator needs to be noti
 
 \section{Simplified diagram of how it works}
 
-The following diagram show how the cache and the coordinator are used.
+The following diagram shows how the caches and the coordinator are used.
 
 \begin{center}
 \includegraphics[width=16.85cm, clip, trim=0.4cm 1.5cm 0.6cm 2cm]{sch1}
@@ -180,17 +180,17 @@ The following diagram show how the cache and the coordinator are used.
 \hrule\hrule \vspace{5mm}
 \begin{huge}Additional features
 \end{huge}
-\vspace{5mm} \hrule\hrule\hrule
+\vspace{5mm} \hrule\hrule
 
 \section{Transaction}
 
-The JAVANAISE librairy include a basic transaction system. The purpose is to be able to realize multiple call of the functions of the object without any modification coming from the other servers. Four functions can be call for each object :
+The JAVANAISE librairy includes a basic transaction system. The purpose is to be able to realize multiple call of the functions of the object without any modification coming from the other servers. Four functions can be called for each object :
 
 \begin{itemize}
-\item \texttt{start()} $\rightarrow$ This function starts the transaction. After the call to \texttt{start()}, the updated state of the object will not be send to the coordinator until the end of the transaction. 
-\item \texttt{commit()} $\rightarrow$ This function validates the transaction. The current state of the object is send to the coordinator.
+\item \texttt{start()} $\rightarrow$ This function starts the transaction. After the call to \texttt{start()}, the updated state of the object will not be sent to the coordinator until the end of the transaction. 
+\item \texttt{commit()} $\rightarrow$ This function validates the transaction. The current state of the object is sent to the coordinator.
 \item \texttt{rollback()} $\rightarrow$ This function cancels the transaction. The current state is forgotten and replaced by the state known by the coordinator.
-\item \texttt{rollbackToMe()} $\rightarrow$ This function cancels the transaction. The current state is forgotten and replaced by the state saved at the moment of the call to \texttt{start()}. This state is also send to the coordinator.
+\item \texttt{rollbackToMe()} $\rightarrow$ This function cancels the transaction. The current state is forgotten and replaced by the state saved at the moment of the call to \texttt{start()}. This state is also sent to the coordinator.
 \end{itemize}
 
 \begin{center}
@@ -201,11 +201,11 @@ The JAVANAISE librairy include a basic transaction system. The purpose is to be 
 
 \subsection{No coordinator available at launch}
 
-If the application can't get the coordinator when starting, a mechanism of wait is set up. Every 5 seconds, the application test again if the coordinator is reachable. The execution starts again normally when the test is successfull.
+If the application can't get the coordinator when starting, a mechanism of wait is set up. Every 5 seconds, the application test again if the coordinator is reachable. The execution of the application starts again normally when the test is successfull.
 
 \subsection{Breakdown of the coordinator during execution}
 
-At any moment of the execution, if the application can't reach the coordinator, the message \textit{"Breakdown of the coordinator"} is shown and the application starts to wait the coordinator. A notification is send to the application when the coordinator is restart and the execution starts again normally. \\
+At any moment of the execution, if the application can't reach the coordinator, the message \textit{"Breakdown of the coordinator"} is shown and the application starts to wait the coordinator. A notification is sent to the application when the coordinator is restart and the execution of the application starts again normally. \\
 \vspace{-0.5cm}
 \begin{table}[h]
     \begin{center}
