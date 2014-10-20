@@ -156,9 +156,7 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 
 		// Treat a Write Lock.
 		if (this.tables.getStoreLockWriteObject().containsKey(joid)){
-			//System.out.println("AV lookup");
 			Serializable updated = this.tables.getStoreLockWriteObject().get(joid).jvnInvalidateWriterForReader(joid);
-			//System.out.println("AP lookup");
 			this.tables.getStoreJvnObject().get(joid).setObjectState(updated);
 			this.tables.getStoreLockReadObject().get(joid).add(this.tables.getStoreLockWriteObject().get(joid));
 			this.tables.getStoreLockWriteObject().remove(joid);
@@ -171,7 +169,6 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 
 		// Add Read Lock.
 		if (toReturn != null){
-			//System.out.println("not null " + jon);
 			this.tables.getStoreLockReadObject().get(joid).add(js);
 			this.tables.getListServer().add(js);
 		}
@@ -356,7 +353,6 @@ public class JvnCoordImpl extends UnicastRemoteObject implements JvnRemoteCoord 
 			try {
 				js.jvnWakeUpServer();
 			} catch (Exception e) {
-				//e.printStackTrace();
 				System.out.println("Server <" + (i++) + "> no longer available");
 				toDelete.add(js);
 			}
